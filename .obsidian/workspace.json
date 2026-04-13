@@ -202,6 +202,7 @@
   },
   "active": "9e5fa0e8cc49eeb4",
   "lastOpenFiles": [
+    "05-每日日志/2026-04/2026-04-13.md",
     "00-系统入口.md",
     "03-资源/SYSTEM-ARCHITECTURE.md",
     "03-资源/代码项目/TK编辑器/weekly-report.html",
@@ -238,7 +239,6 @@
     "04-归档/未命名 1.canvas",
     "03-资源/竞品/competitors.md",
     "02-领域/headphones.md",
-    "templates/test-simple.md",
-    "copilot/copilot-custom-prompts/Summarize.md"
+    "templates/test-simple.md"
   ]
 }
