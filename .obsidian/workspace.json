@@ -202,6 +202,10 @@
   },
   "active": "9e5fa0e8cc49eeb4",
   "lastOpenFiles": [
+    "05-每日日志/2026-04/20260413-会话进展.md",
+    "03-资源/系统文档/工具续写指南-20260413.md",
+    "03-资源/系统文档/全量备份说明-20260413.md",
+    "03-资源/系统文档",
     "05-每日日志/2026-04/2026-04-13.md",
     "00-系统入口.md",
     "03-资源/SYSTEM-ARCHITECTURE.md",
@@ -216,7 +220,6 @@
     "03-资源/代码项目/Bot-review/README.md",
     "03-资源/代码项目/Bot-review",
     "03-资源/代码项目/Clawith/README.md",
-    "03-资源/代码项目/Clawith/restart.sh",
     "03-资源/代码项目/TK编辑器/00-索引.md",
     "03-资源/代码项目/Drama制作/Agentic-OS/00-索引.md",
     "03-资源/技术文档/OpenClaw配置/00-配置索引.md",
@@ -236,9 +239,6 @@
     "01-项目/Dashboard.md",
     "wiki/模版/00-索引.md",
     "04-归档/未命名.canvas",
-    "04-归档/未命名 1.canvas",
-    "03-资源/竞品/competitors.md",
-    "02-领域/headphones.md",
-    "templates/test-simple.md"
+    "04-归档/未命名 1.canvas"
   ]
 }
