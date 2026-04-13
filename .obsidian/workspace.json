@@ -202,21 +202,22 @@
   },
   "active": "9e5fa0e8cc49eeb4",
   "lastOpenFiles": [
+    "03-资源/代码项目/TK编辑器/weekly-report.html",
+    "03-资源/代码项目/TK编辑器/video-transcriber.html",
+    "03-资源/代码项目/TK编辑器/v3-workflow.html",
+    "03-资源/代码项目/TK编辑器/permissions.html",
+    "03-资源/代码项目/TK编辑器/index.html",
+    "03-资源/代码项目/TK编辑器/config-center.html",
+    "03-资源/代码项目/TK编辑器/accounts.html",
+    "03-资源/代码项目/TK编辑器/accounts-fixed.html",
     "03-资源/代码项目/Bot-review/README.md",
     "03-资源/代码项目/Bot-review",
     "03-资源/代码项目/Clawith/README.md",
     "03-资源/代码项目/Clawith/restart.sh",
     "03-资源/代码项目/Clawith",
-    "03-资源/代码项目/TK编辑器/status.html",
-    "03-资源/代码项目/TK编辑器/southeast-asia-3c-report.html",
-    "03-资源/代码项目/TK编辑器/editor.html",
-    "03-资源/代码项目/TK编辑器/dashboard.html",
     "03-资源/代码项目/TK编辑器/00-索引.md",
-    "03-资源/代码项目/TK编辑器",
     "03-资源/代码项目/Drama制作/Agentic-OS/00-索引.md",
     "03-资源/技术文档/OpenClaw配置/00-配置索引.md",
-    "03-资源/代码项目/Drama制作/Agentic-OS/index-v3.1.html",
-    "03-资源/代码项目/Drama制作/Agentic-OS/dashboard_api_v2.py",
     "03-资源/代码项目/Drama制作/Agentic-OS/README.md",
     "03-资源/技术文档/自动化脚本/00-自动化索引.md",
     "03-资源/代码项目/00-索引.md",
@@ -238,7 +239,6 @@
     "02-领域/headphones.md",
     "templates/test-simple.md",
     "copilot/copilot-custom-prompts/Summarize.md",
-    "copilot/copilot-custom-prompts/Make shorter.md",
-    "copilot/copilot-custom-prompts/Remove URLs.md"
+    "copilot/copilot-custom-prompts/Make shorter.md"
   ]
 }
