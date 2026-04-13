@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎬 AI Video Transcriber - MagicPockets</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; }
+        .header p { font-size: 1.2em; opacity: 0.9; }
+        
+        .back-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: white;
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .upload-section {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .upload-area {
+            border: 2px dashed #667eea;
+            border-radius: 12px;
+            padding: 60px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .upload-area:hover {
+            background: #f5f5f5;
+            border-color: #764ba2;
+        }
+        
+        .upload-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .video-list {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+        }
+        
+        .video-item {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .video-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .status-pending { background: #f3f4f6; color: #6b7280; }
+        .status-transcribing { background: #dbeafe; color: #1e40af; }
+        .status-completed { background: #d1fae5; color: #065f46; }
+        .status-error { background: #fee2e2; color: #991b1b; }
+        
+        .result-section {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f9fafb;
+            border-radius: 6px;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .tab {
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            background: #e0e0e0;
+        }
+        
+        .tab.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .toast-success { background: #48bb78; }
+        .toast-error { background: #f56565; }
+        
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-btn">← 返回首页</a>
+        
+        <div class="header">
+            <h1>🎬 AI Video Transcriber</h1>
+            <p>视频转录 + 摘要 + 翻译 全搞定 | 效率提升 30 倍</p>
+        </div>
+        
+        <!-- 上传区域 -->
+        <div class="upload-section">
+            <div class="upload-area" onclick="document.getElementById('videoInput').click()">
+                <div class="upload-icon">📹</div>
+                <h3>点击或拖拽上传视频</h3>
+                <p style="color: #666; margin-top: 10px;">支持 MP4, MOV, AVI 格式 | 自动转录 + 摘要 + 5 国翻译</p>
+                <input type="file" id="videoInput" accept="video/*" style="display: none;" onchange="handleFileSelect(event)">
+            </div>
+            <button class="btn btn-primary" onclick="processSelectedFiles()" style="margin-top: 20px;">🚀 开始处理</button>
+        </div>
+        
+        <!-- 视频列表 -->
+        <div class="video-list">
+            <h2 style="margin-bottom: 20px;">📋 处理记录</h2>
+            <div id="videoListContainer">
+                <!-- 动态生成 -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- 引入依赖 -->
+    <script src="js/database.js"></script>
+    <script src="js/video-transcriber-manager.js"></script>
+    
+    <script>
+        let videoMgr = null;
+        let selectedFiles = [];
+        
+        // 页面加载
+        window.addEventListener('DOMContentLoaded', async () => {
+            console.log('🎬 页面加载完成');
+            try {
+                await db.init();
+                videoMgr = new VideoTranscriberManager();
+                console.log('✅ 视频转录管理器已就绪');
+                await loadVideos();
+            } catch (error) {
+                console.error('❌ 初始化失败:', error);
+                showToast('❌ 初始化失败：' + error.message, 'error');
+            }
+        });
+        
+        // 加载视频列表
+        async function loadVideos() {
+            if (!videoMgr) return;
+            
+            try {
+                const videos = await videoMgr.list();
+                renderVideos(videos);
+            } catch (error) {
+                console.error('加载视频失败:', error);
+            }
+        }
+        
+        // 渲染视频列表
+        function renderVideos(videos) {
+            const container = document.getElementById('videoListContainer');
+            container.innerHTML = '';
+            
+            videos.forEach(video => {
+                const div = document.createElement('div');
+                div.className = 'video-item';
+                div.innerHTML = `
+                    <div class="video-header">
+                        <div>
+                            <strong>${video.filename}</strong>
+                            <span style="color: #666; margin-left: 10px;">${(video.duration || 0).toFixed(1)}秒</span>
+                        </div>
+                        <span class="status-badge status-${video.status}">${getStatusText(video.status)}</span>
+                    </div>
+                    ${video.status === 'completed' ? `
+                        <div class="tabs">
+                            <div class="tab active" onclick="showTab(this, 'summary-${video.id}')">📋 摘要</div>
+                            <div class="tab" onclick="showTab(this, 'transcript-${video.id}')">📝 转录</div>
+                            <div class="tab" onclick="showTab(this, 'translations-${video.id}')">🌐 翻译</div>
+                        </div>
+                        <div id="summary-${video.id}" class="result-section">
+                            <div style="white-space: pre-wrap;">${video.summary || '暂无摘要'}</div>
+                            <button class="btn btn-primary" onclick="exportVideo('${video.id}')" style="margin-top: 10px;">📤 导出</button>
+                        </div>
+                        <div id="transcript-${video.id}" class="result-section" style="display: none;">
+                            <div style="white-space: pre-wrap;">${video.transcript || '暂无转录'}</div>
+                        </div>
+                        <div id="translations-${video.id}" class="result-section" style="display: none;">
+                            <strong>🇹🇭 泰语:</strong><div style="margin: 5px 0;">${video.translations?.th || '-'}</div>
+                            <strong>🇮🇩 印尼语:</strong><div style="margin: 5px 0;">${video.translations?.id || '-'}</div>
+                            <strong>🇵🇭 菲律宾语:</strong><div style="margin: 5px 0;">${video.translations?.ph || '-'}</div>
+                            <strong>🇻🇳 越南语:</strong><div style="margin: 5px 0;">${video.translations?.vi || '-'}</div>
+                            <strong>🇲🇾 马来语:</strong><div style="margin: 5px 0;">${video.translations?.my || '-'}</div>
+                        </div>
+                    ` : ''}
+                    ${video.status === 'error' ? `<div style="color: #f56565; margin-top: 10px;">❌ 处理失败</div>` : ''}
+                `;
+                container.appendChild(div);
+            });
+        }
+        
+        // 获取状态文本
+        function getStatusText(status) {
+            const texts = {
+                'pending': '⏳ 等待中',
+                'transcribing': '📝 转录中',
+                'translating': '🌐 翻译中',
+                'completed': '✅ 已完成',
+                'error': '❌ 错误'
+            };
+            return texts[status] || status;
+        }
+        
+        // 显示标签页
+        function showTab(tab, contentId) {
+            const parent = tab.parentElement;
+            parent.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            
+            parent.parentElement.querySelectorAll('.result-section').forEach(s => s.style.display = 'none');
+            document.getElementById(contentId).style.display = 'block';
+        }
+        
+        // 文件选择
+        function handleFileSelect(event) {
+            const files = Array.from(event.target.files);
+            selectedFiles = [...selectedFiles, ...files];
+            showToast(`✅ 已选择 ${files.length} 个视频`, 'success');
+        }
+        
+        // 处理选中的文件
+        async function processSelectedFiles() {
+            if (selectedFiles.length === 0) {
+                showToast('⚠️ 请先选择视频文件', 'warning');
+                return;
+            }
+            
+            console.log('🚀 开始处理', selectedFiles.length, '个视频');
+            showToast(`🚀 开始处理 ${selectedFiles.length} 个视频`, 'info');
+            
+            try {
+                for (const file of selectedFiles) {
+                    await videoMgr.processVideo(file);
+                }
+                showToast(`✅ 处理完成！`, 'success');
+                selectedFiles = [];
+                await loadVideos();
+            } catch (error) {
+                console.error('处理失败:', error);
+                showToast('❌ 处理失败：' + error.message, 'error');
+            }
+        }
+        
+        // 导出视频
+        async function exportVideo(videoId) {
+            try {
+                const blob = await videoMgr.export(videoId, 'txt');
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `video_${videoId}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showToast('✅ 导出成功', 'success');
+            } catch (error) {
+                showToast('❌ 导出失败：' + error.message, 'error');
+            }
+        }
+        
+        // 显示提示
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

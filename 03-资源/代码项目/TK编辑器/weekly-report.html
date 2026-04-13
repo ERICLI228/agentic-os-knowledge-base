@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 TK 运营周报 - MagicPockets</title>
+    <style>
+        :root {
+            --primary: #667eea;
+            --primary-dark: #764ba2;
+            --success: #48bb78;
+            --warning: #ed8936;
+            --danger: #f56565;
+            --info: #4299e1;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-900: #111827;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: var(--gray-100);
+            color: var(--gray-700);
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        
+        /* 头部 */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 16px 16px 0 0;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+        }
+        .header h1 { font-size: 32px; margin-bottom: 8px; font-weight: 700; }
+        .header-meta { opacity: 0.9; font-size: 14px; display: flex; gap: 20px; flex-wrap: wrap; }
+        .header-meta span { display: flex; align-items: center; gap: 6px; }
+        
+        /* 卡片 */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid var(--gray-200);
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--gray-100);
+        }
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--gray-900);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 2px;
+        }
+        
+        /* 指标卡片 */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .metric-card {
+            background: linear-gradient(135deg, var(--gray-50) 0%, white 100%);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--gray-200);
+            border-left: 4px solid var(--primary);
+            transition: all 0.3s;
+        }
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
+        }
+        .metric-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+        .metric-label {
+            font-size: 13px;
+            color: var(--gray-600);
+            margin-bottom: 8px;
+        }
+        .metric-trend {
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .trend-up { color: var(--success); }
+        .trend-down { color: var(--danger); }
+        .trend-stable { color: var(--warning); }
+        
+        /* 表格 */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid var(--gray-200);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        th {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 14px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+        td {
+            padding: 14px 12px;
+            border-bottom: 1px solid var(--gray-100);
+        }
+        tr:hover { background: var(--gray-50); }
+        tr:last-child td { border-bottom: none; }
+        
+        /* 标签 */
+        .tag {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-block;
+            white-space: nowrap;
+        }
+        .tag-th { background: #fed7d7; color: #742a2a; }
+        .tag-vn { background: #c6f6d5; color: #22543d; }
+        .tag-my { background: #feebc8; color: #7c2d12; }
+        .tag-ph { background: #bee3f8; color: #2a4365; }
+        .tag-sg { background: #e9d8fd; color: #44337a; }
+        
+        /* 优先级 */
+        .priority {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .priority-high { background: #fed7d7; color: #742a2a; }
+        .priority-medium { background: #feebc8; color: #7c2d12; }
+        
+        /* 高亮框 */
+        .highlight {
+            background: linear-gradient(135deg, #fef5e7 0%, #fae5d3 100%);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid var(--warning);
+            margin: 20px 0;
+        }
+        .highlight h3 {
+            color: #d35400;
+            margin-bottom: 12px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .highlight p {
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        .highlight strong { color: #7c2d12; }
+        
+        /* 任务列表 */
+        .task-list {
+            list-style: none;
+        }
+        .task-item {
+            padding: 16px;
+            background: var(--gray-50);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border-left: 4px solid var(--primary);
+            transition: all 0.3s;
+        }
+        .task-item:hover {
+            background: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .task-title {
+            font-weight: 600;
+            color: var(--gray-900);
+            font-size: 14px;
+        }
+        .task-meta {
+            font-size: 12px;
+            color: var(--gray-600);
+        }
+        
+        /* 底部 */
+        .footer {
+            background: white;
+            padding: 24px 40px;
+            text-align: center;
+            border-radius: 0 0 16px 16px;
+            color: var(--gray-600);
+            font-size: 13px;
+            border-top: 1px solid var(--gray-200);
+        }
+        
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .header { padding: 24px; }
+            .header h1 { font-size: 24px; }
+            .card { padding: 16px; }
+            .metrics-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <div class="header">
+            <h1>📊 TK 运营周报</h1>
+            <div class="header-meta">
+                <span>📅 生成时间：<span id="generatedTime"></span></span>
+                <span>📈 数据周期：<span id="period"></span></span>
+                <span>🎩 MagicPockets v2.0</span>
+            </div>
+        </div>
+
+        <!-- 核心指标 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">核心市场概览</div>
+            </div>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value">$9.7M</div>
+                    <div class="metric-label">总 GMV</div>
+                    <div class="metric-trend trend-up">📈 +20% 周环比</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">3.4%</div>
+                    <div class="metric-label">平均转化率</div>
+                    <div class="metric-trend trend-up">📈 +0.3% 周环比</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">$19.8</div>
+                    <div class="metric-label">平均客单价</div>
+                    <div class="metric-trend trend-stable">➡️ +2% 周环比</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">42.6%</div>
+                    <div class="metric-label">平均动销率</div>
+                    <div class="metric-trend trend-up">📈 +3% 周环比</div>
+                </div>
+            </div>
+            
+            <h3 style="margin: 24px 0 16px; font-size: 16px; color: var(--gray-900);">五国核心指标对比</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr><th>国家</th><th>GMV</th><th>增长率</th><th>动销率</th><th>客单价</th><th>转化率</th><th>趋势</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><span class="tag tag-th">🇹🇭 泰国</span></td><td>$2.8M</td><td class="trend-up">+18%</td><td>42%</td><td>$18.5</td><td>3.2%</td><td class="trend-up">📈</td></tr>
+                        <tr><td><span class="tag tag-vn">🇻🇳 越南</span></td><td>$2.1M</td><td class="trend-up">+25%</td><td>38%</td><td>$12.8</td><td>3.8%</td><td class="trend-up">📈</td></tr>
+                        <tr><td><span class="tag tag-my">🇲🇾 马来西亚</span></td><td>$1.9M</td><td class="trend-up">+15%</td><td>45%</td><td>$22.3</td><td>2.9%</td><td class="trend-stable">➡️</td></tr>
+                        <tr><td><span class="tag tag-ph">🇵🇭 菲律宾</span></td><td>$1.7M</td><td class="trend-up">+22%</td><td>40%</td><td>$14.2</td><td>3.5%</td><td class="trend-up">📈</td></tr>
+                        <tr><td><span class="tag tag-sg">🇸🇬 新加坡</span></td><td>$1.2M</td><td class="trend-up">+12%</td><td>48%</td><td>$35.6</td><td>2.5%</td><td class="trend-stable">➡️</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TOP 账号 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">🏆 TOP5 竞品账号</div>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr><th>排名</th><th>账号</th><th>国家</th><th>粉丝数</th><th>周增长</th><th>新视频</th><th>直播场次</th><th>预估 GMV</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>#1</td><td><strong>@kohcun</strong></td><td><span class="tag tag-th">🇹🇭 泰国</span></td><td>5.2M</td><td class="trend-up">+125K</td><td>8</td><td>3</td><td>$285K</td></tr>
+                        <tr><td>#2</td><td><strong>@infinix</strong></td><td><span class="tag tag-th">🇹🇭 泰国</span></td><td>3.8M</td><td class="trend-up">+98K</td><td>12</td><td>5</td><td>$215K</td></tr>
+                        <tr><td>#3</td><td><strong>@xiaomi.vn</strong></td><td><span class="tag tag-vn">🇻🇳 越南</span></td><td>4.1M</td><td class="trend-up">+87K</td><td>10</td><td>4</td><td>$198K</td></tr>
+                        <tr><td>#4</td><td><strong>@oppo.thailand</strong></td><td><span class="tag tag-th">🇹🇭 泰国</span></td><td>2.9M</td><td class="trend-up">+76K</td><td>9</td><td>3</td><td>$165K</td></tr>
+                        <tr><td>#5</td><td><strong>@techreview.my</strong></td><td><span class="tag tag-my">🇲🇾 马来西亚</span></td><td>2.5M</td><td class="trend-up">+68K</td><td>15</td><td>2</td><td>$142K</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 热搜词 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">🔥 热搜词 TOP5</div>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr><th>排名</th><th>关键词</th><th>区域</th><th>搜索量</th><th>转化率</th><th>趋势</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>#1</td><td><strong>快充</strong></td><td>全区域</td><td>2.5M</td><td>高</td><td class="trend-up">📈 上升</td></tr>
+                        <tr><td>#2</td><td><strong>无线充电</strong></td><td>全区域</td><td>1.8M</td><td>高</td><td class="trend-up">📈 上升</td></tr>
+                        <tr><td>#3</td><td><strong>MagSafe</strong></td><td>全区域</td><td>1.5M</td><td>高</td><td class="trend-up">📈 上升</td></tr>
+                        <tr><td>#4</td><td><strong>蓝牙耳机</strong></td><td>全区域</td><td>2.2M</td><td>中</td><td class="trend-stable">➡️ 稳定</td></tr>
+                        <tr><td>#5</td><td><strong>手机壳</strong></td><td>全区域</td><td>3.1M</td><td>中</td><td class="trend-stable">➡️ 稳定</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="highlight">
+                <h3>🚀 飙升词预警</h3>
+                <p><strong>หมวกกันแดดโทรศัพท์</strong> (泰国): 手机防晒壳 <span class="trend-up">+350%</span> - 新趋势，立即跟进</p>
+                <p><strong>áo mưa điện thoại</strong> (越南): 手机雨衣 <span class="trend-up">+280%</span> - 雨季来临</p>
+                <p><strong>powerbank kipas</strong> (马来西亚): 带风扇充电宝 <span class="trend-up">+300%</span> - 炎热天气</p>
+            </div>
+        </div>
+
+        <!-- 运营日历 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">📅 本土化运营日历</div>
+            </div>
+            <div class="highlight">
+                <h3>⚠️ 4 月重点：泰国泼水节（4 月 13-15 日）</h3>
+                <p><strong>关键词：</strong>防水手机袋、防水、สงกรานต์、泼水节</p>
+                <p><strong>商机：</strong>防水产品销量预计增长 <span class="trend-up">300%</span></p>
+                <p><strong>行动：</strong>立即备货，关键词布局，广告投放</p>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr><th>日期</th><th>国家</th><th>节日</th><th>类型</th><th>准备</th><th>主推产品</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>4/13-15</td><td><span class="tag tag-th">🇹🇭 泰国</span></td><td>泼水节</td><td>宗教节日</td><td>提前 45 天</td><td>防水手机袋、防水包</td></tr>
+                        <tr><td>4/1-30</td><td>🇮🇩 印尼</td><td>斋月</td><td>宗教节日</td><td>提前 30 天</td><td>节能小家电、祈祷垫</td></tr>
+                        <tr><td>5/1-31</td><td>全区域</td><td>雨季</td><td>气候事件</td><td>提前 15 天</td><td>防水耳机、雨伞</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 任务清单 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">✅ 自动化运营任务清单</div>
+            </div>
+            <ul class="task-list">
+                <li class="task-item">
+                    <div class="task-header">
+                        <div class="task-title">🔴 高优先级 | 选品 - 跟进手机防水袋，联系供应商询价</td>
+                        <span class="priority priority-high">高</span>
+                    </div>
+                    <div class="task-meta">原因：泼水节临近，搜索量增长 300% | 截止日期：2026-03-20</div>
+                </li>
+                <li class="task-item">
+                    <div class="task-header">
+                        <div class="task-title">🔴 高优先级 | 内容 - 参考@kohcun 视频，拍摄 3 条脚本</td>
+                        <span class="priority priority-high">高</span>
+                    </div>
+                    <div class="task-meta">原因：竞对视频 2.8M 播放，转化效果好 | 截止日期：2026-03-19</div>
+                </li>
+                <li class="task-item">
+                    <div class="task-header">
+                        <div class="task-title">🔴 高优先级 | 广告 - 将飙升词加入广告组，提高出价 20%</td>
+                        <span class="priority priority-high">高</span>
+                    </div>
+                    <div class="task-meta">原因：飙升词转化率高 | 截止日期：2026-03-18</div>
+                </li>
+                <li class="task-item">
+                    <div class="task-header">
+                        <div class="task-title">🔴 高优先级 | 达人 - 联系本周销量榜 Top3 达人</td>
+                        <span class="priority priority-high">高</span>
+                    </div>
+                    <div class="task-meta">原因：带货效果好，ROI 高 | 截止日期：2026-03-19</div>
+                </li>
+                <li class="task-item">
+                    <div class="task-header">
+                        <div class="task-title">🟡 中优先级 | 选品 - 跟进 GaN 充电器，联系供应商</td>
+                        <span class="priority priority-medium">中</span>
+                    </div>
+                    <div class="task-meta">原因：新加坡市场增长 220%，高利润产品 | 截止日期：2026-03-22</div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- 底部 -->
+        <div class="footer">
+            <p>🎩 MagicPockets v2.0 | TK 运营周报</p>
+            <p>生成时间：<span id="footerTime"></span> | 下周同一时间自动生成下一期报告</p>
+        </div>
+    </div>
+
+    <script>
+        const now = new Date();
+        const generatedTime = now.toLocaleString('zh-CN');
+        const periodStart = new Date(now);
+        periodStart.setDate(now.getDate() - (now.getDay() === 0 ? 6 : now.getDay() - 1));
+        const periodEnd = new Date(periodStart);
+        periodEnd.setDate(periodStart.getDate() + 6);
+        
+        document.getElementById('generatedTime').textContent = generatedTime;
+        document.getElementById('footerTime').textContent = generatedTime;
+        document.getElementById('period').textContent = 
+            `${periodStart.toISOString().split('T')[0]} 至 ${periodEnd.toISOString().split('T')[0]}`;
+    </script>
+</body>
+</html>
