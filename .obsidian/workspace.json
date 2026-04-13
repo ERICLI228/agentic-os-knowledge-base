@@ -200,14 +200,24 @@
       "obsidian-importer:Open Importer": false
     }
   },
-  "active": "656a57361e84866a",
+  "active": "9e5fa0e8cc49eeb4",
   "lastOpenFiles": [
+    "03-资源/代码项目/Bot-review/README.md",
+    "03-资源/代码项目/Bot-review",
+    "03-资源/代码项目/Clawith/README.md",
+    "03-资源/代码项目/Clawith/restart.sh",
+    "03-资源/代码项目/Clawith",
+    "03-资源/代码项目/TK编辑器/status.html",
+    "03-资源/代码项目/TK编辑器/southeast-asia-3c-report.html",
+    "03-资源/代码项目/TK编辑器/editor.html",
+    "03-资源/代码项目/TK编辑器/dashboard.html",
+    "03-资源/代码项目/TK编辑器/00-索引.md",
+    "03-资源/代码项目/TK编辑器",
     "03-资源/代码项目/Drama制作/Agentic-OS/00-索引.md",
     "03-资源/技术文档/OpenClaw配置/00-配置索引.md",
     "03-资源/代码项目/Drama制作/Agentic-OS/index-v3.1.html",
     "03-资源/代码项目/Drama制作/Agentic-OS/dashboard_api_v2.py",
     "03-资源/代码项目/Drama制作/Agentic-OS/README.md",
-    "03-资源/代码项目/Drama制作/Agentic-OS",
     "03-资源/技术文档/自动化脚本/00-自动化索引.md",
     "03-资源/代码项目/00-索引.md",
     "03-资源/代码项目/TK运营/00-索引.md",
@@ -215,14 +225,7 @@
     "03-资源/代码项目/工具脚本/00-索引.md",
     "02-领域/Drama制作/00-索引.md",
     "03-资源/代码项目/Drama制作/00-索引.md",
-    "03-资源/代码项目/工具脚本",
-    "03-资源/代码项目/TK运营",
-    "03-资源/代码项目/OpenClaw核心",
-    "03-资源/代码项目/Drama制作",
-    "03-资源/代码项目",
     "03-资源/技术文档/技能库/00-技能索引.md",
-    "03-资源/技术文档/自动化脚本",
-    "03-资源/技术文档/技能库",
     "03-资源/技术文档/00-索引.md",
     "01-项目/任务列表.md",
     "02-领域/TK运营/headphones.md",
@@ -236,8 +239,6 @@
     "templates/test-simple.md",
     "copilot/copilot-custom-prompts/Summarize.md",
     "copilot/copilot-custom-prompts/Make shorter.md",
-    "copilot/copilot-custom-prompts/Remove URLs.md",
-    "copilot/copilot-custom-prompts/Make longer.md",
-    "copilot/copilot-custom-prompts/Clip Web Page.md"
+    "copilot/copilot-custom-prompts/Remove URLs.md"
   ]
 }

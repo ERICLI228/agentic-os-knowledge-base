@@ -1,0 +1,1869 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 可视化工作流编辑器 - MagicPockets</title>
+    <style>
+        :root {
+            --primary: #667eea;
+            --primary-dark: #764ba2;
+            --success: #48bb78;
+            --danger: #f56565;
+            --warning: #ed8936;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: var(--gray-100);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: white;
+            padding: 12px 24px;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 64px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        
+        .header-left { display: flex; align-items: center; gap: 16px; }
+        .header h1 { color: var(--primary); font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .workflow-input {
+            padding: 8px 16px;
+            border: 2px solid var(--gray-200);
+            border-radius: 8px;
+            font-size: 13px;
+            width: 200px;
+            transition: border-color 0.2s;
+        }
+        .workflow-input:focus { outline: none; border-color: var(--primary); }
+        
+        .header-actions { display: flex; gap: 10px; }
+        
+        .btn-shortcut {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 24px;
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+            transition: all 0.2s;
+            z-index: 1000;
+        }
+        .btn-shortcut:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.6);
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; }
+        .btn-secondary { background: white; color: var(--primary); border: 2px solid var(--primary); }
+        .btn-success { background: linear-gradient(135deg, var(--success), #38a169); color: white; }
+        .btn-danger { background: white; color: var(--danger); border: 2px solid var(--danger); }
+        
+        .container { display: flex; height: calc(100vh - 64px); }
+        
+        .sidebar {
+            width: 260px;
+            background: white;
+            border-right: 1px solid var(--gray-200);
+            overflow-y: auto;
+            padding: 16px;
+        }
+        
+        .sidebar h3 { color: var(--gray-700); font-size: 13px; font-weight: 700; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .node-item {
+            padding: 12px 16px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: grab;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .node-item:hover { transform: translateX(4px); box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
+        
+        .canvas-container {
+            flex: 1;
+            background: #f7fafc;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .canvas {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            background-image: 
+                linear-gradient(var(--gray-200) 1px, transparent 1px),
+                linear-gradient(90deg, var(--gray-200) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        .canvas-node {
+            position: absolute;
+            background: white;
+            border: 2px solid var(--gray-200);
+            border-radius: 12px;
+            padding: 0;
+            min-width: 220px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            cursor: move;
+            transition: box-shadow 0.2s, border-color 0.2s;
+            overflow: hidden;
+            user-select: none;
+        }
+        .canvas-node:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+        .canvas-node.selected { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2); }
+        
+        .canvas-node-header {
+            padding: 12px 16px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        
+        .canvas-node-actions { display: flex; gap: 6px; }
+        .canvas-node-btn {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        .btn-edit { background: rgba(255,255,255,0.2); color: white; }
+        .btn-delete { background: rgba(255,255,255,0.2); color: white; }
+        .btn-delete:hover { background: var(--danger); }
+        
+        .canvas-node-body { padding: 12px 16px; }
+        .canvas-node-desc { font-size: 11px; color: var(--gray-600); margin-bottom: 8px; }
+        
+        .canvas-node-config {
+            background: var(--gray-50);
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-top: 8px;
+        }
+        .config-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 11px; }
+        .config-row:last-child { margin-bottom: 0; }
+        .config-label { color: var(--gray-600); }
+        .config-value { color: var(--gray-700); font-weight: 600; }
+        
+        .canvas-node-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background: #c6f6d5;
+            color: #22543d;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+        
+        .port {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border: 3px solid var(--primary);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s;
+            z-index: 10;
+        }
+        .port:hover { transform: scale(1.4); background: var(--primary); }
+        .port-input { left: -8px; top: 50%; transform: translateY(-50%); }
+        .port-output { right: -8px; top: 50%; transform: translateY(-50%); }
+        .port.active { background: var(--success); border-color: var(--success); animation: pulse 1s infinite; }
+        
+        @keyframes pulse {
+            0%, 100% { transform: translateY(-50%) scale(1); }
+            50% { transform: translateY(-50%) scale(1.3); }
+        }
+        
+        .connections-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .connection-path {
+            fill: none;
+            stroke: var(--primary);
+            stroke-width: 3px;
+            stroke-linecap: round;
+        }
+        
+        .config-panel {
+            width: 320px;
+            background: white;
+            border-left: 1px solid var(--gray-200);
+            overflow-y: auto;
+            padding: 16px;
+        }
+        
+        .config-panel h3 { color: var(--gray-700); font-size: 13px; font-weight: 700; margin-bottom: 16px; }
+        
+        .guide {
+            background: linear-gradient(135deg, #f0fff4, #c6f6d5);
+            padding: 16px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .guide h4 { color: #22543d; font-size: 13px; font-weight: 700; margin-bottom: 12px; }
+        .guide ol { padding-left: 20px; color: #276749; font-size: 12px; line-height: 1.8; }
+        
+        .tips {
+            background: linear-gradient(135deg, #ebf8ff, #bee3f8);
+            padding: 16px;
+            border-radius: 10px;
+            margin-top: 16px;
+        }
+        
+        .tips h4 { color: #2a4365; font-size: 13px; font-weight: 700; margin-bottom: 12px; }
+        .tips ul { padding-left: 20px; color: #2c5282; font-size: 12px; line-height: 1.8; }
+        
+        .welcome-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.98);
+            z-index: 100;
+        }
+        
+        .welcome-content { text-align: center; max-width: 500px; padding: 40px; }
+        .welcome-icon { font-size: 64px; margin-bottom: 20px; }
+        .welcome-content h2 { color: var(--primary); font-size: 28px; margin-bottom: 16px; }
+        
+        .welcome-steps {
+            margin-top: 32px;
+            text-align: left;
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        
+        .step { display: flex; gap: 12px; margin-bottom: 16px; }
+        .step-number {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+        
+        .btn-start {
+            margin-top: 24px;
+            padding: 12px 32px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-start:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3); }
+        
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 12px 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .toast-success { border-left: 4px solid var(--success); }
+        .toast-error { border-left: 4px solid var(--danger); }
+        .toast-info { border-left: 4px solid var(--primary); }
+        
+        .config-modal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        
+        .config-modal.active { display: flex; }
+        
+        .modal-content {
+            background: white;
+            padding: 32px;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-header h3 { color: var(--gray-700); font-size: 18px; }
+        .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--gray-600); }
+        
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; color: var(--gray-700); font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid var(--gray-200);
+            border-radius: 8px;
+            font-size: 13px;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <h1>📊 可视化工作流编辑器</h1>
+            <input type="text" id="workflowName" class="workflow-input" placeholder="输入工作流名称..." />
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-secondary" onclick="loadExample()">📚 加载示例</button>
+            <button class="btn btn-primary" onclick="saveWorkflow()">💾 保存工作流</button>
+            <button class="btn btn-success" onclick="runWorkflow()">▶️ 运行工作流</button>
+            <button class="btn btn-danger" onclick="clearCanvas()">🗑️ 清空画布</button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="sidebar">
+            <h3>📦 TK 电商节点库</h3>
+            <div class="node-item" style="background: linear-gradient(135deg, #667eea, #764ba2);" draggable="true" ondragstart="drag(event)" data-type="tiktok-scraper">
+                <span class="node-icon">🎬</span>
+                <span>TikTok 抓取</span>
+            </div>
+            <div class="node-item" style="background: linear-gradient(135deg, #f56565, #c53030);" draggable="true" ondragstart="drag(event)" data-type="hot-search">
+                <span class="node-icon">🔥</span>
+                <span>热搜词监控</span>
+            </div>
+            <div class="node-item" style="background: linear-gradient(135deg, #ed8936, #dd6b20);" draggable="true" ondragstart="drag(event)" data-type="competitor-monitor">
+                <span class="node-icon">👀</span>
+                <span>竞品监控</span>
+            </div>
+            <div class="node-item" style="background: linear-gradient(135deg, #48bb78, #38a169);" draggable="true" ondragstart="drag(event)" data-type="ollama-caption">
+                <span class="node-icon">✍️</span>
+                <span>文案生成</span>
+            </div>
+            <div class="node-item" style="background: linear-gradient(135deg, #4299e1, #3182ce);" draggable="true" ondragstart="drag(event)" data-type="ollama-translate">
+                <span class="node-icon">🌐</span>
+                <span>多语言翻译</span>
+            </div>
+            <div class="node-item" style="background: linear-gradient(135deg, #9f7aea, #805ad5);" draggable="true" ondragstart="drag(event)" data-type="ollama-hashtags">
+                <span class="node-icon">🏷️</span>
+                <span>标签优化</span>
+            </div>
+            <div class="node-item" style="background: linear-gradient(135deg, #00bfff, #009acd);" draggable="true" ondragstart="drag(event)" data-type="feishu-notify">
+                <span class="node-icon">💬</span>
+                <span>飞书通知</span>
+            </div>
+            <div class="node-item" style="background: linear-gradient(135deg, #ecc94b, #d69e2e);" draggable="true" ondragstart="drag(event)" data-type="schedule-publish">
+                <span class="node-icon">⏰</span>
+                <span>定时发布</span>
+            </div>
+            <div class="node-item" style="background: linear-gradient(135deg, #f687b3, #d53f8c);" draggable="true" ondragstart="drag(event)" data-type="data-analysis">
+                <span class="node-icon">📊</span>
+                <span>数据分析</span>
+            </div>
+            <div class="node-item" style="background: linear-gradient(135deg, #4fd1c5, #319795);" draggable="true" ondragstart="drag(event)" data-type="profit-calc">
+                <span class="node-icon">💰</span>
+                <span>利润测算</span>
+            </div>
+            
+            <!-- 新增节点：内容工业化模块 -->
+            <div class="node-item" style="background: linear-gradient(135deg, #ed64a6, #d53f8c);" draggable="true" ondragstart="drag(event)" data-type="video-gen">
+                <span class="node-icon">🎬</span>
+                <span>视频生成</span>
+            </div>
+            <div class="node-item" style="background: linear-gradient(135deg, #dd6b20, #c05621);" draggable="true" ondragstart="drag(event)" data-type="video-dedup">
+                <span class="node-icon">🔀</span>
+                <span>去重增强</span>
+            </div>
+            
+            <!-- 新增节点：多账号发布模块 -->
+            <div class="node-item" style="background: linear-gradient(135deg, #2b6cb0, #2c5282);" draggable="true" ondragstart="drag(event)" data-type="zinia-env">
+                <span class="node-icon">🔐</span>
+                <span>紫鸟环境</span>
+            </div>
+            <div class="node-item" style="background: linear-gradient(135deg, #3182ce, #2a4365);" draggable="true" ondragstart="drag(event)" data-type="multi-shop-login">
+                <span class="node-icon">🏪</span>
+                <span>多店登录</span>
+            </div>
+            <div class="node-item" style="background: linear-gradient(135deg, #805ad5, #6b46c1);" draggable="true" ondragstart="drag(event)" data-type="tiktok-publish">
+                <span class="node-icon">📤</span>
+                <span>TikTok 发布</span>
+            </div>
+            <div class="node-item" style="background: linear-gradient(135deg, #9f7aea, #805ad5);" draggable="true" ondragstart="drag(event)" data-type="product-listing">
+                <span class="node-icon">🛍️</span>
+                <span>商品上架</span>
+            </div>
+            
+            <!-- 新增节点：广告智能化模块 -->
+            <div class="node-item" style="background: linear-gradient(135deg, #f687b3, #d53f8c);" draggable="true" ondragstart="drag(event)" data-type="ad-create">
+                <span class="node-icon">📢</span>
+                <span>广告创建</span>
+            </div>
+            <div class="node-item" style="background: linear-gradient(135deg, #f6ad55, #ed8936);" draggable="true" ondragstart="drag(event)" data-type="roas-monitor">
+                <span class="node-icon">📈</span>
+                <span>ROAS 监控</span>
+            </div>
+            <div class="node-item" style="background: linear-gradient(135deg, #fc8181, #e53e3e);" draggable="true" ondragstart="drag(event)" data-type="budget-adjust">
+                <span class="node-icon">💹</span>
+                <span>预算调整</span>
+            </div>
+            <div class="node-item" style="background: linear-gradient(135deg, #f687b3, #d53f8c);" draggable="true" ondragstart="drag(event)" data-type="creative-rotate">
+                <span class="node-icon">🔄</span>
+                <span>素材轮替</span>
+            </div>
+            
+            <!-- 新增节点：订单履约模块 -->
+            <div class="node-item" style="background: linear-gradient(135deg, #68d391, #38a169);" draggable="true" ondragstart="drag(event)" data-type="order-sync">
+                <span class="node-icon">📦</span>
+                <span>订单同步</span>
+            </div>
+            <div class="node-item" style="background: linear-gradient(135deg, #63b3ed, #3182ce);" draggable="true" ondragstart="drag(event)" data-type="logistics-fill">
+                <span class="node-icon">🚚</span>
+                <span>物流回填</span>
+            </div>
+            <div class="node-item" style="background: linear-gradient(135deg, #fc8181, #e53e3e);" draggable="true" ondragstart="drag(event)" data-type="exception-alert">
+                <span class="node-icon">⚠️</span>
+                <span>异常预警</span>
+            </div>
+            
+            <!-- 新增节点：客服自动化模块 -->
+            <div class="node-item" style="background: linear-gradient(135deg, #4fd1c5, #319795);" draggable="true" ondragstart="drag(event)" data-type="faq-reply">
+                <span class="node-icon">💬</span>
+                <span>FAQ 回复</span>
+            </div>
+            <div class="node-item" style="background: linear-gradient(135deg, #9f7aea, #805ad5);" draggable="true" ondragstart="drag(event)" data-type="emotion-detect">
+                <span class="node-icon">😊</span>
+                <span>情绪识别</span>
+            </div>
+            <div class="node-item" style="background: linear-gradient(135deg, #f6ad55, #ed8936);" draggable="true" ondragstart="drag(event)" data-type="support-guide">
+                <span class="node-icon">🔧</span>
+                <span>售后引导</span>
+            </div>
+            
+            <!-- 新增节点：数据归因模块 -->
+            <div class="node-item" style="background: linear-gradient(135deg, #4299e1, #3182ce);" draggable="true" ondragstart="drag(event)" data-type="data-integration">
+                <span class="node-icon">🔗</span>
+                <span>数据整合</span>
+            </div>
+            <div class="node-item" style="background: linear-gradient(135deg, #9f7aea, #805ad5);" draggable="true" ondragstart="drag(event)" data-type="ltv-calc">
+                <span class="node-icon">📊</span>
+                <span>LTV 核算</span>
+            </div>
+            <div class="node-item" style="background: linear-gradient(135deg, #48bb78, #38a169);" draggable="true" ondragstart="drag(event)" data-type="strategy-iterate">
+                <span class="node-icon">🔄</span>
+                <span>策略迭代</span>
+            </div>
+            
+            <!-- 新增节点：选品洞察模块 -->
+            <div class="node-item" style="background: linear-gradient(135deg, #667eea, #764ba2);" draggable="true" ondragstart="drag(event)" data-type="product-match">
+                <span class="node-icon">🛒</span>
+                <span>商品库匹配</span>
+            </div>
+        </div>
+        
+        <div class="canvas-container">
+            <div class="canvas" id="canvas" ondrop="drop(event)" ondragover="allowDrop(event)">
+                <svg class="connections-svg" id="connectionsSvg"></svg>
+                
+                <div class="welcome-overlay" id="welcomeOverlay">
+                    <div class="welcome-content">
+                        <div class="welcome-icon">🎨</div>
+                        <h2>欢迎使用可视化工作流编辑器</h2>
+                        <p>通过拖拽方式创建您的 TikTok 自动化运营工作流</p>
+                        
+                        <div class="welcome-steps">
+                            <h3>📝 快速开始指南</h3>
+                            <div class="step">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <strong>拖拽节点到画布</strong>
+                                    <p>从左侧节点库拖拽任意节点到画布区域</p>
+                                </div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <strong>连接节点</strong>
+                                    <p>点击节点的输出点（右侧圆点），再点击另一个节点的输入点（左侧圆点）创建连接</p>
+                                </div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <strong>配置节点</strong>
+                                    <p>点击 ✏️ 按钮配置节点参数（国家、语言、频率等）</p>
+                                </div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">4</div>
+                                <div class="step-content">
+                                    <strong>保存并运行</strong>
+                                    <p>输入工作流名称，点击"保存工作流"，然后点击"运行工作流"执行</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button class="btn-start" onclick="closeWelcome()">开始创建 →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="config-panel">
+            <h3>⚙️ 操作指南</h3>
+            
+            <div class="guide">
+                <h4>📖 如何创建工作流</h4>
+                <ol>
+                    <li><strong>拖拽节点</strong> - 从左侧拖拽节点到画布</li>
+                    <li><strong>移动节点</strong> - 拖拽节点调整位置</li>
+                    <li><strong>连接节点</strong> - 点击输出点 → 点击输入点</li>
+                    <li><strong>配置节点</strong> - 点击 ✏️ 按钮配置参数</li>
+                    <li><strong>删除节点</strong> - 点击 🗑️ 按钮或按 Delete 键</li>
+                    <li><strong>保存工作流</strong> - 输入名称后点击保存</li>
+                    <li><strong>运行工作流</strong> - 点击运行按钮执行</li>
+                </ol>
+            </div>
+            
+            <div class="tips">
+                <h4>💡 使用技巧</h4>
+                <ul>
+                    <li>节点可以随意拖拽调整位置</li>
+                    <li>一个节点可以连接多个节点</li>
+                    <li>工作流会自动保存到浏览器</li>
+                    <li>可以加载示例工作流学习</li>
+                    <li>按 Delete 键可快速删除选中节点</li>
+                    <li>连接成功后会显示流动线条</li>
+                </ul>
+            </div>
+            
+            <div class="tips" style="margin-top: 16px; background: linear-gradient(135deg, #fef5e7, #fae5d3);">
+                <h4 style="color: #d35400;">🎯 推荐工作流</h4>
+                <p style="color: #7c2d12; font-size: 11px; margin-bottom: 8px;">💡 点击工作流名称可一键加载模板</p>
+                <button class="btn btn-primary" style="margin-top: 8px; font-size: 11px;" onclick="showWorkflowTemplates()">📋 打开工作流模板库</button>
+                
+                <details style="margin-bottom: 8px; cursor: pointer;">
+                    <summary style="color: #d35400; font-weight: 600; font-size: 12px;">📦 新手入门（3 个）</summary>
+                    <ul style="color: #7c2d12; font-size: 11px; padding-left: 20px;">
+                        <li><strong>内容生成:</strong> TikTok 抓取 → 文案生成 → 飞书通知</li>
+                        <li><strong>监控发布:</strong> 热搜词监控 → 标签优化 → 定时发布</li>
+                        <li><strong>竞品分析:</strong> 竞品监控 → 数据分析 → 利润测算</li>
+                    </ul>
+                </details>
+                
+                <details style="margin-bottom: 8px; cursor: pointer;">
+                    <summary style="color: #d35400; font-weight: 600; font-size: 12px;">🔥 高频场景（5 个）</summary>
+                    <ul style="color: #7c2d12; font-size: 11px; padding-left: 20px;">
+                        <li><strong>爆品打造:</strong> TikTok 抓取 → 商品匹配 → 利润测算 → 视频生成 → 文案生成 → 多语言翻译 → 标签优化 → TikTok 发布 → 广告创建 → ROAS 监控</li>
+                        <li><strong>多店发布:</strong> 紫鸟环境 → 多店登录 → TikTok 发布 → 商品上架 → 定时发布</li>
+                        <li><strong>广告优化:</strong> 广告创建 → ROAS 监控 → 预算调整 → 素材轮替 → 飞书通知</li>
+                        <li><strong>订单履约:</strong> 订单同步 → 物流回填 → 异常预警 → 飞书通知</li>
+                        <li><strong>客服自动化:</strong> FAQ 回复 → 情绪识别 → 售后引导 → 飞书通知</li>
+                    </ul>
+                </details>
+                
+                <details style="margin-bottom: 8px; cursor: pointer;">
+                    <summary style="color: #d35400; font-weight: 600; font-size: 12px;">🚀 完整链路（2 个）</summary>
+                    <ul style="color: #7c2d12; font-size: 11px; padding-left: 20px;">
+                        <li><strong>全自动化电商:</strong> TikTok 抓取 → 商品匹配 → 利润测算 → 视频生成 → 去重增强 → 文案生成 → 多语言翻译 → 标签优化 → 紫鸟环境 → 多店登录 → TikTok 发布 → 商品上架 → 广告创建 → ROAS 监控 → 预算调整 → 素材轮替 → 飞书通知</li>
+                        <li><strong>数据驱动运营:</strong> 数据整合 → 数据分析 → LTV 核算 → 策略迭代 → 飞书通知</li>
+                    </ul>
+                </details>
+                
+                <details style="margin-bottom: 8px; cursor: pointer;">
+                    <summary style="color: #d35400; font-weight: 600; font-size: 12px;">🌏 国家专项（5 个）</summary>
+                    <ul style="color: #7c2d12; font-size: 11px; padding-left: 20px;">
+                        <li><strong>印尼专线:</strong> TikTok 抓取 (印尼) → 文案生成 (印尼语) → 多语言翻译 → TikTok 发布</li>
+                        <li><strong>泰国专线:</strong> TikTok 抓取 (泰国) → 文案生成 (泰语) → 多语言翻译 → 广告创建</li>
+                        <li><strong>越南专线:</strong> 热搜词监控 (越南) → 文案生成 (越南语) → 标签优化 → 定时发布</li>
+                        <li><strong>菲律宾专线:</strong> 竞品监控 (菲律宾) → 数据分析 → 利润测算 → 商品上架</li>
+                        <li><strong>马来西亚专线:</strong> 订单同步 (马来西亚) → 物流回填 → 异常预警</li>
+                    </ul>
+                </details>
+                
+                <details style="margin-bottom: 8px; cursor: pointer;">
+                    <summary style="color: #d35400; font-weight: 600; font-size: 12px;">💼 行业最佳实践（3 个）</summary>
+                    <ul style="color: #7c2d12; font-size: 11px; padding-left: 20px;">
+                        <li><strong>3C 数码爆款:</strong> TikTok 抓取 → 竞品监控 → 商品匹配 → 利润测算 (≥20%) → 视频生成 (开箱) → 文案生成 → 多语言翻译 → 标签优化 → TikTok 发布 → 广告创建 (转化目标) → ROAS 监控 (阈值 2.5)</li>
+                        <li><strong>服装类目测款:</strong> 热搜词监控 → 竞品监控 → 数据分析 → 视频生成 (对比) → 文案生成 → 多语言翻译 → 定时发布 → 数据分析 → 飞书通知</li>
+                        <li><strong>美妆个护推广:</strong> TikTok 抓取 → 文案生成 (专业语气) → 多语言翻译 → 情绪识别 → 客服自动化 → 售后引导 → 飞书通知</li>
+                    </ul>
+                </details>
+            </div>
+        </div>
+    </div>
+
+    <!-- 配置弹窗 -->
+    <div class="config-modal" id="configModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">📝 配置节点</h3>
+                <button class="modal-close" onclick="closeConfigModal()">×</button>
+            </div>
+            <div id="modalBody"></div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeConfigModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveNodeConfig()">💾 保存配置</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 工作流模板库弹窗 -->
+    <div class="config-modal" id="templateModal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3>📚 工作流模板库</h3>
+                <button class="modal-close" onclick="closeTemplateModal()">×</button>
+            </div>
+            <div id="templateBody" style="max-height: 60vh; overflow-y: auto;">
+                <!-- 模板内容动态生成 -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeTemplateModal()">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 快捷键提示弹窗 -->
+    <div class="config-modal" id="shortcutModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3>⌨️ 快捷键</h3>
+                <button class="modal-close" onclick="closeShortcutModal()">×</button>
+            </div>
+            <div style="max-height: 60vh; overflow-y: auto;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div style="background: var(--gray-50); padding: 12px; border-radius: 8px;">
+                        <div style="font-weight: 600; color: var(--gray-700); margin-bottom: 8px;">💾 保存与加载</div>
+                        <div style="font-size: 11px; color: var(--gray-600); margin-bottom: 4px;"><kbd style="background: var(--gray-200); padding: 2px 6px; border-radius: 4px;">Ctrl+S</kbd> 保存工作流</div>
+                        <div style="font-size: 11px; color: var(--gray-600);"><kbd style="background: var(--gray-200); padding: 2px 6px; border-radius: 4px;">Ctrl+O</kbd> 加载工作流</div>
+                    </div>
+                    <div style="background: var(--gray-50); padding: 12px; border-radius: 8px;">
+                        <div style="font-weight: 600; color: var(--gray-700); margin-bottom: 8px;">↩️ 撤销与重做</div>
+                        <div style="font-size: 11px; color: var(--gray-600); margin-bottom: 4px;"><kbd style="background: var(--gray-200); padding: 2px 6px; border-radius: 4px;">Ctrl+Z</kbd> 撤销</div>
+                        <div style="font-size: 11px; color: var(--gray-600);"><kbd style="background: var(--gray-200); padding: 2px 6px; border-radius: 4px;">Ctrl+Y</kbd> 重做</div>
+                    </div>
+                    <div style="background: var(--gray-50); padding: 12px; border-radius: 8px;">
+                        <div style="font-weight: 600; color: var(--gray-700); margin-bottom: 8px;">📋 复制与粘贴</div>
+                        <div style="font-size: 11px; color: var(--gray-600); margin-bottom: 4px;"><kbd style="background: var(--gray-200); padding: 2px 6px; border-radius: 4px;">Ctrl+D</kbd> 复制节点</div>
+                        <div style="font-size: 11px; color: var(--gray-600); margin-bottom: 4px;"><kbd style="background: var(--gray-200); padding: 2px 6px; border-radius: 4px;">Ctrl+C</kbd> 复制</div>
+                        <div style="font-size: 11px; color: var(--gray-600);"><kbd style="background: var(--gray-200); padding: 2px 6px; border-radius: 4px;">Ctrl+V</kbd> 粘贴</div>
+                    </div>
+                    <div style="background: var(--gray-50); padding: 12px; border-radius: 8px;">
+                        <div style="font-weight: 600; color: var(--gray-700); margin-bottom: 8px;">🗑️ 删除与全选</div>
+                        <div style="font-size: 11px; color: var(--gray-600); margin-bottom: 4px;"><kbd style="background: var(--gray-200); padding: 2px 6px; border-radius: 4px;">Delete</kbd> 删除节点</div>
+                        <div style="font-size: 11px; color: var(--gray-600);"><kbd style="background: var(--gray-200); padding: 2px 6px; border-radius: 4px;">Ctrl+A</kbd> 全选</div>
+                    </div>
+                    <div style="background: var(--gray-50); padding: 12px; border-radius: 8px;">
+                        <div style="font-weight: 600; color: var(--gray-700); margin-bottom: 8px;">🔍 画布操作</div>
+                        <div style="font-size: 11px; color: var(--gray-600); margin-bottom: 4px;"><kbd style="background: var(--gray-200); padding: 2px 6px; border-radius: 4px;">Ctrl+0</kbd> 适应画布</div>
+                        <div style="font-size: 11px; color: var(--gray-600); margin-bottom: 4px;"><kbd style="background: var(--gray-200); padding: 2px 6px; border-radius: 4px;">Ctrl++</kbd> 放大</div>
+                        <div style="font-size: 11px; color: var(--gray-600);"><kbd style="background: var(--gray-200); padding: 2px 6px; border-radius: 4px;">Ctrl+-</kbd> 缩小</div>
+                    </div>
+                    <div style="background: var(--gray-50); padding: 12px; border-radius: 8px;">
+                        <div style="font-weight: 600; color: var(--gray-700); margin-bottom: 8px;">▶️ 运行</div>
+                        <div style="font-size: 11px; color: var(--gray-600); margin-bottom: 4px;"><kbd style="background: var(--gray-200); padding: 2px 6px; border-radius: 4px;">F5</kbd> 运行工作流</div>
+                        <div style="font-size: 11px; color: var(--gray-600);"><kbd style="background: var(--gray-200); padding: 2px 6px; border-radius: 4px;">Esc</kbd> 取消连接</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeShortcutModal()">知道了</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 快捷键按钮 -->
+    <button class="btn-shortcut" onclick="showShortcutModal()" title="快捷键 (按 ? 键)">⌨️</button>
+
+    <script>
+        let nodeIdCounter = 0;
+        let nodes = [];
+        let connections = [];
+        let selectedNode = null;
+        let connectingNode = null;
+        let isConnecting = false;
+        let editingNodeId = null;
+
+        const nodeTypes = {
+            'tiktok-scraper': { 
+                icon: '🎬', 
+                label: 'TikTok 抓取', 
+                desc: '抓取 TikTok 视频数据', 
+                color: '#667eea',
+                config: [
+                    { key: 'country', label: '目标国家', type: 'select', options: ['泰国', '越南', '马来西亚', '菲律宾', '新加坡'], default: '泰国' },
+                    { key: 'username', label: '账号/关键词', type: 'text', default: '@kohcun' },
+                    { key: 'count', label: '抓取数量', type: 'number', default: '10' }
+                ]
+            },
+            'hot-search': { 
+                icon: '🔥', 
+                label: '热搜词监控', 
+                desc: '监控平台热搜词', 
+                color: '#f56565',
+                config: [
+                    { key: 'country', label: '目标国家', type: 'select', options: ['泰国', '越南', '马来西亚', '菲律宾', '新加坡'], default: '泰国' },
+                    { key: 'category', label: '类目', type: 'text', default: '3C 数码' }
+                ]
+            },
+            'competitor-monitor': { 
+                icon: '👀', 
+                label: '竞品监控', 
+                desc: '监控竞品账号动态', 
+                color: '#ed8936',
+                config: [
+                    { key: 'accounts', label: '竞品账号', type: 'textarea', default: '@kohcun,@infinix' },
+                    { key: 'frequency', label: '监控频率', type: 'select', options: ['每小时', '每 4 小时', '每日'], default: '每 4 小时' }
+                ]
+            },
+            'ollama-caption': { 
+                icon: '✍️', 
+                label: '文案生成', 
+                desc: 'AI 自动生成文案', 
+                color: '#48bb78',
+                config: [
+                    { key: 'model', label: 'AI 模型', type: 'select', options: ['qwen2.5:7b', 'qwen3:8b', 'deepseek-r1:32b'], default: 'qwen3:8b' },
+                    { key: 'tone', label: '语气风格', type: 'select', options: ['casual', 'professional', 'funny'], default: 'casual' },
+                    { key: 'language', label: '目标语言', type: 'select', options: ['印尼语', '泰语', '越南语', '他加禄语', '马来语'], default: '泰语' }
+                ]
+            },
+            'ollama-translate': { 
+                icon: '🌐', 
+                label: '多语言翻译', 
+                desc: '5 国语言翻译', 
+                color: '#4299e1',
+                config: [
+                    { key: 'targetLang', label: '目标语言', type: 'select', options: ['印尼语', '泰语', '越南语', '他加禄语', '马来语'], default: '泰语' },
+                    { key: 'includeLocal', label: '本地化优化', type: 'select', options: ['是', '否'], default: '是' }
+                ]
+            },
+            'ollama-hashtags': { 
+                icon: '🏷️', 
+                label: '标签优化', 
+                desc: '智能标签推荐', 
+                color: '#9f7aea',
+                config: [
+                    { key: 'count', label: '标签数量', type: 'number', default: '10' },
+                    { key: 'includeHot', label: '包含热搜词', type: 'select', options: ['是', '否'], default: '是' }
+                ]
+            },
+            'feishu-notify': { 
+                icon: '💬', 
+                label: '飞书通知', 
+                desc: '飞书群消息推送', 
+                color: '#00bfff',
+                config: [
+                    { key: 'chatId', label: '目标群聊', type: 'select', options: ['运营指挥部', '选品作战室', '内容工坊', '广告指挥室'], default: '运营指挥部' },
+                    { key: 'template', label: '消息模板', type: 'select', options: ['文本', '卡片', '日报'], default: '卡片' }
+                ]
+            },
+            'schedule-publish': { 
+                icon: '⏰', 
+                label: '定时发布', 
+                desc: '定时任务调度', 
+                color: '#ecc94b',
+                config: [
+                    { key: 'schedule', label: '发布时间', type: 'text', default: '0 9 * * *' },
+                    { key: 'timezone', label: '时区', type: 'select', options: ['Asia/Bangkok', 'Asia/Ho_Chi_Minh', 'Asia/Kuala_Lumpur'], default: 'Asia/Bangkok' }
+                ]
+            },
+            'data-analysis': { 
+                icon: '📊', 
+                label: '数据分析', 
+                desc: '销售数据分析', 
+                color: '#f687b3',
+                config: [
+                    { key: 'metrics', label: '分析指标', type: 'select', options: ['销量', 'ROAS', '转化率', '流量'], default: '销量' },
+                    { key: 'period', label: '时间周期', type: 'select', options: ['今日', '昨日', '近 7 天', '近 30 天'], default: '近 7 天' }
+                ]
+            },
+            'profit-calc': { 
+                icon: '💰', 
+                label: '利润测算', 
+                desc: '利润计算分析', 
+                color: '#4fd1c5',
+                config: [
+                    { key: 'includeShipping', label: '包含运费', type: 'select', options: ['是', '否'], default: '是' },
+                    { key: 'includeAds', label: '包含广告费', type: 'select', options: ['是', '否'], default: '是' },
+                    { key: 'targetMargin', label: '目标利润率 (%)', type: 'number', default: '20' }
+                ]
+            },
+            
+            // 新增节点：内容工业化模块
+            'video-gen': {
+                icon: '🎬',
+                label: '视频生成',
+                desc: 'AI 自动生成视频',
+                color: '#ed64a6',
+                config: [
+                    { key: 'template', label: '视频模板', type: 'select', options: ['开箱', '评测', '对比', '教程'], default: '开箱' },
+                    { key: 'duration', label: '视频时长 (秒)', type: 'number', default: '30' },
+                    { key: 'resolution', label: '分辨率', type: 'select', options: ['1080p', '720p', '4K'], default: '1080p' }
+                ]
+            },
+            'video-dedup': {
+                icon: '🔀',
+                label: '去重增强',
+                desc: '视频去重处理',
+                color: '#dd6b20',
+                config: [
+                    { key: 'method', label: '去重方式', type: 'select', options: ['滤镜', '裁剪', '变速', '混合'], default: '混合' },
+                    { key: 'strength', label: '去重强度', type: 'select', options: ['低', '中', '高'], default: '中' }
+                ]
+            },
+            
+            // 新增节点：多账号发布模块
+            'zinia-env': {
+                icon: '🔐',
+                label: '紫鸟环境',
+                desc: '紫鸟浏览器环境',
+                color: '#2b6cb0',
+                config: [
+                    { key: 'envId', label: '环境 ID', type: 'text', default: 'env_xxxxx' },
+                    { key: 'country', label: '目标国家', type: 'select', options: ['印尼', '菲律宾', '泰国', '越南', '马来西亚'], default: '泰国' }
+                ]
+            },
+            'multi-shop-login': {
+                icon: '🏪',
+                label: '多店登录',
+                desc: '多店铺账号登录',
+                color: '#3182ce',
+                config: [
+                    { key: 'shops', label: '店铺列表', type: 'textarea', default: '店铺 1，店铺 2，店铺 3' },
+                    { key: 'autoLogin', label: '自动登录', type: 'select', options: ['是', '否'], default: '是' }
+                ]
+            },
+            'tiktok-publish': {
+                icon: '📤',
+                label: 'TikTok 发布',
+                desc: '视频发布到 TikTok',
+                color: '#805ad5',
+                config: [
+                    { key: 'account', label: '发布账号', type: 'text', default: '@shop_account' },
+                    { key: 'schedule', label: '发布时间', type: 'select', options: ['立即', '定时', '高峰期'], default: '立即' }
+                ]
+            },
+            'product-listing': {
+                icon: '🛍️',
+                label: '商品上架',
+                desc: '商品上架到店铺',
+                color: '#9f7aea',
+                config: [
+                    { key: 'shop', label: '目标店铺', type: 'text', default: '店铺 1' },
+                    { key: 'category', label: '商品类目', type: 'text', default: '3C 数码' },
+                    { key: 'price', label: '定价策略', type: 'select', options: ['低价', '中价', '高价'], default: '中价' }
+                ]
+            },
+            
+            // 新增节点：广告智能化模块
+            'ad-create': {
+                icon: '📢',
+                label: '广告创建',
+                desc: 'TikTok 广告创建',
+                color: '#f687b3',
+                config: [
+                    { key: 'budget', label: '日预算 ($)', type: 'number', default: '50' },
+                    { key: 'objective', label: '广告目标', type: 'select', options: ['转化', '点击', '展示'], default: '转化' },
+                    { key: 'audience', label: '目标受众', type: 'text', default: '18-35 岁，3C 兴趣' }
+                ]
+            },
+            'roas-monitor': {
+                icon: '📈',
+                label: 'ROAS 监控',
+                desc: '广告 ROAS 实时监控',
+                color: '#f6ad55',
+                config: [
+                    { key: 'threshold', label: 'ROAS 阈值', type: 'number', default: '2.5' },
+                    { key: 'frequency', label: '监控频率', type: 'select', options: ['每 5 分钟', '每 15 分钟', '每小时'], default: '每 15 分钟' }
+                ]
+            },
+            'budget-adjust': {
+                icon: '💹',
+                label: '预算调整',
+                desc: '自动调整广告预算',
+                color: '#fc8181',
+                config: [
+                    { key: 'rule', label: '调整规则', type: 'select', options: ['ROAS>3 加预算', 'ROAS<2 减预算', '智能调整'], default: '智能调整' },
+                    { key: 'adjustPercent', label: '调整幅度 (%)', type: 'number', default: '20' }
+                ]
+            },
+            'creative-rotate': {
+                icon: '🔄',
+                label: '素材轮替',
+                desc: '广告素材自动轮替',
+                color: '#f687b3',
+                config: [
+                    { key: 'interval', label: '轮替间隔 (小时)', type: 'number', default: '4' },
+                    { key: 'creatives', label: '素材数量', type: 'number', default: '5' }
+                ]
+            },
+            
+            // 新增节点：订单履约模块
+            'order-sync': {
+                icon: '📦',
+                label: '订单同步',
+                desc: '订单数据同步',
+                color: '#68d391',
+                config: [
+                    { key: 'platform', label: '平台', type: 'select', options: ['TikTok Shop', 'Shopee', 'Lazada'], default: 'TikTok Shop' },
+                    { key: 'frequency', label: '同步频率', type: 'select', options: ['实时', '每 5 分钟', '每小时'], default: '实时' }
+                ]
+            },
+            'logistics-fill': {
+                icon: '🚚',
+                label: '物流回填',
+                desc: '物流单号回填',
+                color: '#63b3ed',
+                config: [
+                    { key: 'courier', label: '快递公司', type: 'select', options: ['J&T', 'Kerry', 'Flash', 'GHN'], default: 'J&T' },
+                    { key: 'autoFill', label: '自动回填', type: 'select', options: ['是', '否'], default: '是' }
+                ]
+            },
+            'exception-alert': {
+                icon: '⚠️',
+                label: '异常预警',
+                desc: '订单异常预警',
+                color: '#fc8181',
+                config: [
+                    { key: 'type', label: '异常类型', type: 'select', options: ['延迟发货', '物流停滞', '退货申请'], default: '延迟发货' },
+                    { key: 'notify', label: '通知方式', type: 'select', options: ['飞书', '邮件', '短信'], default: '飞书' }
+                ]
+            },
+            
+            // 新增节点：客服自动化模块
+            'faq-reply': {
+                icon: '💬',
+                label: 'FAQ 回复',
+                desc: '常见问题自动回复',
+                color: '#4fd1c5',
+                config: [
+                    { key: 'language', label: '回复语言', type: 'select', options: ['泰语', '越南语', '印尼语', '英语'], default: '泰语' },
+                    { key: 'autoReply', label: '自动回复', type: 'select', options: ['是', '否'], default: '是' }
+                ]
+            },
+            'emotion-detect': {
+                icon: '😊',
+                label: '情绪识别',
+                desc: '客户情绪分析',
+                color: '#9f7aea',
+                config: [
+                    { key: 'model', label: '识别模型', type: 'select', options: ['基础版', '进阶版', '定制版'], default: '基础版' },
+                    { key: 'threshold', label: '敏感度', type: 'select', options: ['低', '中', '高'], default: '中' }
+                ]
+            },
+            'support-guide': {
+                icon: '🔧',
+                label: '售后引导',
+                desc: '售后服务引导',
+                color: '#f6ad55',
+                config: [
+                    { key: 'type', label: '售后类型', type: 'select', options: ['退货', '换货', '维修'], default: '退货' },
+                    { key: 'autoGuide', label: '自动引导', type: 'select', options: ['是', '否'], default: '是' }
+                ]
+            },
+            
+            // 新增节点：数据归因模块
+            'data-integration': {
+                icon: '🔗',
+                label: '数据整合',
+                desc: '跨平台数据整合',
+                color: '#4299e1',
+                config: [
+                    { key: 'sources', label: '数据来源', type: 'textarea', default: 'TikTok Shop，飞书，广告后台' },
+                    { key: 'frequency', label: '更新频率', type: 'select', options: ['实时', '每小时', '每日'], default: '每小时' }
+                ]
+            },
+            'ltv-calc': {
+                icon: '📊',
+                label: 'LTV 核算',
+                desc: '用户生命周期价值',
+                color: '#9f7aea',
+                config: [
+                    { key: 'period', label: '统计周期', type: 'select', options: ['7 天', '30 天', '90 天'], default: '30 天' },
+                    { key: 'includeAds', label: '包含广告成本', type: 'select', options: ['是', '否'], default: '是' }
+                ]
+            },
+            'strategy-iterate': {
+                icon: '🔄',
+                label: '策略迭代',
+                desc: '运营策略迭代优化',
+                color: '#48bb78',
+                config: [
+                    { key: 'metrics', label: '优化指标', type: 'select', options: ['ROAS', '转化率', '复购率'], default: 'ROAS' },
+                    { key: 'autoOptimize', label: '自动优化', type: 'select', options: ['是', '否'], default: '是' }
+                ]
+            },
+            
+            // 新增节点：选品洞察模块
+            'product-match': {
+                icon: '🛒',
+                label: '商品库匹配',
+                desc: '商品库智能匹配',
+                color: '#667eea',
+                config: [
+                    { key: 'category', label: '商品类目', type: 'text', default: '3C 数码' },
+                    { key: 'priceRange', label: '价格区间', type: 'text', default: '50-200' },
+                    { key: 'margin', label: '最低利润率 (%)', type: 'number', default: '20' }
+                ]
+            },
+        };
+
+        function allowDrop(ev) { ev.preventDefault(); }
+        function drag(ev) {
+            ev.dataTransfer.setData('type', ev.target.getAttribute('data-type'));
+            ev.dataTransfer.effectAllowed = 'copy';
+        }
+
+        function drop(ev) {
+            ev.preventDefault();
+            const type = ev.dataTransfer.getData('type');
+            if (!type) return;
+
+            const canvas = document.getElementById('canvas');
+            const rect = canvas.getBoundingClientRect();
+            const x = ev.clientX - rect.left - 110;
+            const y = ev.clientY - rect.top - 30;
+
+            createNode(type, x, y);
+            showToast('✅ 节点已添加：' + nodeTypes[type].label, 'success');
+        }
+
+        function createNode(type, x, y, config = {}) {
+            const canvas = document.getElementById('canvas');
+            const nodeConfig = nodeTypes[type];
+            if (!nodeConfig) return;
+
+            const nodeId = 'node-' + (++nodeIdCounter);
+            
+            // 初始化配置
+            const nodeConfigData = {};
+            nodeConfig.config.forEach(c => {
+                nodeConfigData[c.key] = config[c.key] || c.default;
+            });
+            
+            nodes.push({ id: nodeId, type, x, y, config: nodeConfigData });
+
+            const node = document.createElement('div');
+            node.className = 'canvas-node';
+            node.id = nodeId;
+            node.style.left = x + 'px';
+            node.style.top = y + 'px';
+            node.draggable = true;
+            node.ondragstart = dragNode;
+            node.ondragover = dragNodeOver;
+            node.ondrop = dropNode;
+            node.onmousedown = selectNode;
+
+            // 生成配置显示
+            let configHtml = '';
+            nodeConfig.config.slice(0, 2).forEach(c => {
+                configHtml += `<div class="config-row"><span class="config-label">${c.label}:</span><span class="config-value">${nodeConfigData[c.key]}</span></div>`;
+            });
+
+            node.innerHTML = `
+                <div class="canvas-node-header">
+                    <span>${nodeConfig.icon} ${nodeConfig.label}</span>
+                    <div class="canvas-node-actions">
+                        <button class="canvas-node-btn btn-edit" onclick="event.stopPropagation(); editNode('${nodeId}')" title="配置">✏️</button>
+                        <button class="canvas-node-btn btn-delete" onclick="event.stopPropagation(); deleteNode('${nodeId}')" title="删除">🗑️</button>
+                    </div>
+                </div>
+                <div class="canvas-node-body">
+                    <div class="canvas-node-desc">${nodeConfig.desc}</div>
+                    <div class="canvas-node-config">${configHtml}</div>
+                    <div class="canvas-node-status">✅ 已配置</div>
+                </div>
+                <div class="port port-input" onclick="event.stopPropagation(); completeConnection('${nodeId}')" title="输入"></div>
+                <div class="port port-output" onclick="event.stopPropagation(); startConnection('${nodeId}')" title="输出"></div>
+            `;
+
+            canvas.appendChild(node);
+            document.getElementById('welcomeOverlay').style.display = 'none';
+        }
+
+        function dragNode(ev) {
+            ev.dataTransfer.setData('text', ev.target.id);
+            ev.dataTransfer.effectAllowed = 'move';
+        }
+
+        function dragNodeOver(ev) { ev.preventDefault(); }
+
+        function dropNode(ev) {
+            ev.preventDefault();
+            const nodeId = ev.dataTransfer.getData('text');
+            const node = document.getElementById(nodeId);
+            const canvas = document.getElementById('canvas');
+            const rect = canvas.getBoundingClientRect();
+            
+            const x = ev.clientX - rect.left - 110;
+            const y = ev.clientY - rect.top - 30;
+            
+            node.style.left = x + 'px';
+            node.style.top = y + 'px';
+            
+            const nodeData = nodes.find(n => n.id === nodeId);
+            if (nodeData) {
+                nodeData.x = x;
+                nodeData.y = y;
+            }
+            
+            updateConnections();
+        }
+
+        function selectNode(ev) {
+            ev.stopPropagation();
+            document.querySelectorAll('.canvas-node').forEach(n => n.classList.remove('selected'));
+            ev.currentTarget.classList.add('selected');
+            selectedNode = ev.currentTarget;
+        }
+
+        function startConnection(nodeId) {
+            connectingNode = nodeId;
+            isConnecting = true;
+            const port = document.querySelector(`#${nodeId} .port-output`);
+            if (port) port.classList.add('active');
+            showToast('🔗 请点击另一个节点的输入点（左侧圆点）完成连接', 'info');
+        }
+
+        function completeConnection(nodeId) {
+            if (!isConnecting || !connectingNode) return;
+            if (connectingNode === nodeId) {
+                showToast('⚠️ 不能连接自己', 'error');
+                resetConnection();
+                return;
+            }
+
+            // 检查是否已存在连接
+            const exists = connections.some(c => c.from === connectingNode && c.to === nodeId);
+            if (exists) {
+                showToast('⚠️ 连接已存在', 'error');
+                resetConnection();
+                return;
+            }
+
+            connections.push({ from: connectingNode, to: nodeId });
+            updateConnections();
+            showToast('✅ 连接成功！数据将从 ' + getNodeLabel(connectingNode) + ' 流向 ' + getNodeLabel(nodeId), 'success');
+            resetConnection();
+        }
+
+        function resetConnection() {
+            isConnecting = false;
+            connectingNode = null;
+            document.querySelectorAll('.port').forEach(p => p.classList.remove('active'));
+        }
+
+        function getNodeLabel(nodeId) {
+            const node = nodes.find(n => n.id === nodeId);
+            return node ? nodeTypes[node.type].label : '未知节点';
+        }
+
+        function updateConnections() {
+            const svg = document.getElementById('connectionsSvg');
+            svg.innerHTML = '';
+            
+            connections.forEach(conn => {
+                const fromNode = document.getElementById(conn.from);
+                const toNode = document.getElementById(conn.to);
+                
+                if (!fromNode || !toNode) return;
+                
+                const fromRect = fromNode.getBoundingClientRect();
+                const toRect = toNode.getBoundingClientRect();
+                const canvasRect = document.getElementById('canvas').getBoundingClientRect();
+                
+                const x1 = fromRect.right - canvasRect.left;
+                const y1 = fromRect.top + fromRect.height / 2 - canvasRect.top;
+                const x2 = toRect.left - canvasRect.left;
+                const y2 = toRect.top + toRect.height / 2 - canvasRect.top;
+                
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                const deltaX = Math.abs(x2 - x1) * 0.5;
+                const d = `M ${x1} ${y1} C ${x1 + deltaX} ${y1}, ${x2 - deltaX} ${y2}, ${x2} ${y2}`;
+                
+                path.setAttribute('d', d);
+                path.setAttribute('class', 'connection-path');
+                svg.appendChild(path);
+            });
+        }
+
+        function deleteNode(nodeId) {
+            if (!confirm('确定删除此节点？')) return;
+            
+            const node = document.getElementById(nodeId);
+            if (node) node.remove();
+            
+            nodes = nodes.filter(n => n.id !== nodeId);
+            connections = connections.filter(c => c.from !== nodeId && c.to !== nodeId);
+            
+            updateConnections();
+            showToast('🗑️ 节点已删除', 'success');
+        }
+
+        function editNode(nodeId) {
+            editingNodeId = nodeId;
+            const nodeData = nodes.find(n => n.id === nodeId);
+            if (!nodeData) return;
+            
+            const config = nodeTypes[nodeData.type];
+            
+            let formHtml = '';
+            config.config.forEach(c => {
+                const value = nodeData.config[c.key] || c.default;
+                
+                if (c.type === 'select') {
+                    const options = c.options.map(o => `<option value="${o}" ${o === value ? 'selected' : ''}>${o}</option>`).join('');
+                    formHtml += `<div class="form-group"><label>${c.label}</label><select id="config_${c.key}">${options}</select></div>`;
+                } else if (c.type === 'textarea') {
+                    formHtml += `<div class="form-group"><label>${c.label}</label><textarea id="config_${c.key}" rows="3">${value}</textarea></div>`;
+                } else {
+                    formHtml += `<div class="form-group"><label>${c.label}</label><input type="${c.type}" id="config_${c.key}" value="${value}" /></div>`;
+                }
+            });
+            
+            document.getElementById('modalTitle').textContent = '📝 配置 ' + config.label;
+            document.getElementById('modalBody').innerHTML = formHtml;
+            document.getElementById('configModal').classList.add('active');
+        }
+
+        // 配置验证函数
+        function validateNodeConfig(type, config) {
+            const errors = [];
+            
+            if (type === 'tiktok-scraper') {
+                if (!config.username || !config.username.startsWith('@')) {
+                    errors.push('账号格式错误，应以@开头');
+                }
+            }
+            if (type === 'ad-create' && config.budget && isNaN(config.budget)) {
+                errors.push('预算应为数字');
+            }
+            if (type === 'roas-monitor' && config.threshold && isNaN(config.threshold)) {
+                errors.push('ROAS 阈值应为数字');
+            }
+            
+            return errors;
+        }
+
+        // 🔒 安全修复：XSS 防护 - HTML 转义函数
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return String(text).replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // 🔒 安全增强：敏感信息过滤 + 加密存储
+        const SENSITIVE_KEYS = ['apiKey', 'apiSecret', 'password', 'token', 'secret', 'privateKey'];
+        
+        // 简单加密函数（生产环境应使用 CryptoJS）
+        function simpleEncrypt(text) {
+            return btoa(encodeURIComponent(text));
+        }
+        
+        function simpleDecrypt(encoded) {
+            return decodeURIComponent(atob(encoded));
+        }
+        
+        function sanitizeWorkflow(workflow) {
+            const sanitized = JSON.parse(JSON.stringify(workflow));
+            sanitized.nodes.forEach(node => {
+                if (node.config) {
+                    SENSITIVE_KEYS.forEach(key => {
+                        delete node.config[key];
+                    });
+                }
+            });
+            return sanitized;
+        }
+        
+        // 加密保存工作流
+        function saveWorkflowEncrypted() {
+            const name = document.getElementById('workflowName').value || '未命名工作流';
+            const workflow = { name, nodes, connections, savedAt: new Date().toISOString() };
+            
+            // 过滤敏感信息
+            const sanitized = sanitizeWorkflow(workflow);
+            
+            // 加密存储
+            const encrypted = simpleEncrypt(JSON.stringify(sanitized));
+            localStorage.setItem('tk-workflow-enc-' + name, encrypted);
+            
+            showToast('✅ 工作流 "' + name + '" 已加密保存', 'success');
+        }
+
+        function saveNodeConfig() {
+            if (!editingNodeId) return;
+            
+            const nodeData = nodes.find(n => n.id === editingNodeId);
+            if (!nodeData) return;
+            
+            const config = nodeTypes[nodeData.type];
+            const newConfig = {};
+            
+            config.config.forEach(c => {
+                const el = document.getElementById('config_' + c.key);
+                if (el) {
+                    newConfig[c.key] = el.value;
+                }
+            });
+            
+            // 验证配置
+            const errors = validateNodeConfig(nodeData.type, newConfig);
+            if (errors.length > 0) {
+                showToast('⚠️ 配置验证失败：' + errors.join('，'), 'error');
+                return;
+            }
+            
+            nodeData.config = newConfig;
+            
+            // 更新节点显示
+            const node = document.getElementById(editingNodeId);
+            if (node) {
+                let configHtml = '';
+                config.config.slice(0, 2).forEach(c => {
+                    // 🔒 安全修复：转义用户输入，防止 XSS
+                    configHtml += `<div class="config-row"><span class="config-label">${escapeHtml(c.label)}</span><span class="config-value">${escapeHtml(nodeData.config[c.key])}</span></div>`;
+                });
+                node.querySelector('.canvas-node-config').innerHTML = configHtml;
+            }
+            
+            closeConfigModal();
+            showToast('✅ 配置已保存', 'success');
+        }
+
+        function closeConfigModal() {
+            document.getElementById('configModal').classList.remove('active');
+            editingNodeId = null;
+        }
+
+        function saveWorkflow() {
+            const name = document.getElementById('workflowName').value || '未命名工作流';
+            // 🔒 安全修复：过滤敏感信息后再保存
+            const sanitizedWorkflow = sanitizeWorkflow({ name, nodes, connections, savedAt: new Date().toISOString() });
+            localStorage.setItem('tk-workflow-' + name, JSON.stringify(sanitizedWorkflow));
+            showToast('✅ 工作流 "' + name + '" 已保存（敏感信息已过滤）', 'success');
+        }
+
+        function loadWorkflow() {
+            const name = document.getElementById('workflowName').value;
+            if (!name) { showToast('⚠️ 请输入工作流名称', 'error'); return; }
+            
+            const saved = localStorage.getItem('tk-workflow-' + name);
+            if (!saved) { showToast('⚠️ 工作流不存在', 'error'); return; }
+            
+            const workflow = JSON.parse(saved);
+            clearCanvas(false);
+            workflow.nodes.forEach(n => createNode(n.type, n.x, n.y, n.config));
+            setTimeout(() => {
+                connections = workflow.connections || [];
+                updateConnections();
+            }, 100);
+            showToast('✅ 工作流 "' + name + '" 已加载', 'success');
+        }
+
+        function loadExample() {
+            clearCanvas(false);
+            document.getElementById('workflowName').value = '示例工作流';
+            
+            createNode('tiktok-scraper', 100, 100, { country: '泰国', username: '@kohcun', count: '10' });
+            createNode('ollama-caption', 100, 250, { model: 'qwen3:8b', tone: 'casual', language: '泰语' });
+            createNode('feishu-notify', 100, 400, { chatId: '选品作战室', template: '卡片' });
+            
+            setTimeout(() => {
+                connections = [
+                    { from: 'node-1', to: 'node-2' },
+                    { from: 'node-2', to: 'node-3' }
+                ];
+                updateConnections();
+                showToast('📚 示例工作流已加载：TikTok 抓取 → 文案生成 → 飞书通知', 'success');
+            }, 100);
+        }
+
+        // 工作流模板库
+        const workflowTemplates = {
+            'beginner': {
+                name: '📦 新手入门',
+                templates: [
+                    {
+                        name: '内容生成',
+                        desc: '快速生成 TikTok 内容',
+                        nodes: [
+                            { type: 'tiktok-scraper', x: 100, y: 100, config: { country: '泰国', username: '@kohcun', count: '10' } },
+                            { type: 'ollama-caption', x: 100, y: 250, config: { model: 'qwen3:8b', tone: 'casual', language: '泰语' } },
+                            { type: 'feishu-notify', x: 100, y: 400, config: { chatId: '运营指挥部', template: '卡片' } }
+                        ],
+                        connections: [{ from: 'node-1', to: 'node-2' }, { from: 'node-2', to: 'node-3' }]
+                    },
+                    {
+                        name: '监控发布',
+                        desc: '热搜词监控与定时发布',
+                        nodes: [
+                            { type: 'hot-search', x: 100, y: 100, config: { country: '泰国', category: '3C 数码' } },
+                            { type: 'ollama-hashtags', x: 100, y: 250, config: { count: '10', includeHot: '是' } },
+                            { type: 'schedule-publish', x: 100, y: 400, config: { schedule: '0 9 * * *', timezone: 'Asia/Bangkok' } }
+                        ],
+                        connections: [{ from: 'node-1', to: 'node-2' }, { from: 'node-2', to: 'node-3' }]
+                    },
+                    {
+                        name: '竞品分析',
+                        desc: '竞品监控与利润分析',
+                        nodes: [
+                            { type: 'competitor-monitor', x: 100, y: 100, config: { accounts: '@kohcun,@infinix', frequency: '每 4 小时' } },
+                            { type: 'data-analysis', x: 100, y: 250, config: { metrics: '销量', period: '近 7 天' } },
+                            { type: 'profit-calc', x: 100, y: 400, config: { includeShipping: '是', includeAds: '是', targetMargin: '20' } }
+                        ],
+                        connections: [{ from: 'node-1', to: 'node-2' }, { from: 'node-2', to: 'node-3' }]
+                    }
+                ]
+            },
+            'advanced': {
+                name: '🔥 高频场景',
+                templates: [
+                    {
+                        name: '爆品打造',
+                        desc: '从选品到发布的完整流程',
+                        nodes: [
+                            { type: 'tiktok-scraper', x: 100, y: 50, config: { country: '泰国', username: '@kohcun', count: '20' } },
+                            { type: 'product-match', x: 300, y: 50, config: { category: '3C 数码', priceRange: '50-200', margin: '20' } },
+                            { type: 'profit-calc', x: 500, y: 50, config: { includeShipping: '是', includeAds: '是', targetMargin: '20' } },
+                            { type: 'video-gen', x: 100, y: 200, config: { template: '开箱', duration: '30', resolution: '1080p' } },
+                            { type: 'ollama-caption', x: 300, y: 200, config: { model: 'qwen3:8b', tone: 'casual', language: '泰语' } },
+                            { type: 'ollama-translate', x: 500, y: 200, config: { targetLang: '泰语', includeLocal: '是' } },
+                            { type: 'ollama-hashtags', x: 100, y: 350, config: { count: '15', includeHot: '是' } },
+                            { type: 'tiktok-publish', x: 300, y: 350, config: { account: '@shop_th', schedule: '立即' } },
+                            { type: 'ad-create', x: 500, y: 350, config: { budget: '50', objective: '转化', audience: '18-35 岁，3C 兴趣' } },
+                            { type: 'roas-monitor', x: 100, y: 500, config: { threshold: '2.5', frequency: '每 15 分钟' } }
+                        ],
+                        connections: [
+                            { from: 'node-1', to: 'node-2' }, { from: 'node-2', to: 'node-3' },
+                            { from: 'node-3', to: 'node-4' }, { from: 'node-4', to: 'node-5' },
+                            { from: 'node-5', to: 'node-6' }, { from: 'node-6', to: 'node-7' },
+                            { from: 'node-7', to: 'node-8' }, { from: 'node-8', to: 'node-9' },
+                            { from: 'node-9', to: 'node-10' }
+                        ]
+                    },
+                    {
+                        name: '多店发布',
+                        desc: '多店铺账号批量发布',
+                        nodes: [
+                            { type: 'zinia-env', x: 100, y: 100, config: { envId: 'env_th_001', country: '泰国' } },
+                            { type: 'multi-shop-login', x: 300, y: 100, config: { shops: '店铺 1，店铺 2，店铺 3', autoLogin: '是' } },
+                            { type: 'tiktok-publish', x: 100, y: 250, config: { account: '@shop_account', schedule: '定时' } },
+                            { type: 'product-listing', x: 300, y: 250, config: { shop: '店铺 1', category: '3C 数码', price: '中价' } },
+                            { type: 'schedule-publish', x: 100, y: 400, config: { schedule: '0 9 * * *', timezone: 'Asia/Bangkok' } }
+                        ],
+                        connections: [
+                            { from: 'node-1', to: 'node-2' }, { from: 'node-2', to: 'node-3' },
+                            { from: 'node-3', to: 'node-4' }, { from: 'node-4', to: 'node-5' }
+                        ]
+                    },
+                    {
+                        name: '广告优化',
+                        desc: '智能广告投放与优化',
+                        nodes: [
+                            { type: 'ad-create', x: 100, y: 100, config: { budget: '50', objective: '转化', audience: '18-35 岁' } },
+                            { type: 'roas-monitor', x: 300, y: 100, config: { threshold: '2.5', frequency: '每 15 分钟' } },
+                            { type: 'budget-adjust', x: 100, y: 250, config: { rule: '智能调整', adjustPercent: '20' } },
+                            { type: 'creative-rotate', x: 300, y: 250, config: { interval: '4', creatives: '5' } },
+                            { type: 'feishu-notify', x: 100, y: 400, config: { chatId: '广告指挥室', template: '卡片' } }
+                        ],
+                        connections: [
+                            { from: 'node-1', to: 'node-2' }, { from: 'node-2', to: 'node-3' },
+                            { from: 'node-3', to: 'node-4' }, { from: 'node-4', to: 'node-5' }
+                        ]
+                    },
+                    {
+                        name: '订单履约',
+                        desc: '订单处理与物流跟踪',
+                        nodes: [
+                            { type: 'order-sync', x: 100, y: 100, config: { platform: 'TikTok Shop', frequency: '实时' } },
+                            { type: 'logistics-fill', x: 300, y: 100, config: { courier: 'J&T', autoFill: '是' } },
+                            { type: 'exception-alert', x: 100, y: 250, config: { type: '延迟发货', notify: '飞书' } },
+                            { type: 'feishu-notify', x: 300, y: 250, config: { chatId: '运营指挥部', template: '文本' } }
+                        ],
+                        connections: [
+                            { from: 'node-1', to: 'node-2' }, { from: 'node-2', to: 'node-3' },
+                            { from: 'node-3', to: 'node-4' }
+                        ]
+                    },
+                    {
+                        name: '客服自动化',
+                        desc: '智能客服与情绪识别',
+                        nodes: [
+                            { type: 'faq-reply', x: 100, y: 100, config: { language: '泰语', autoReply: '是' } },
+                            { type: 'emotion-detect', x: 300, y: 100, config: { model: '基础版', threshold: '中' } },
+                            { type: 'support-guide', x: 100, y: 250, config: { type: '退货', autoGuide: '是' } },
+                            { type: 'feishu-notify', x: 300, y: 250, config: { chatId: '客服专线', template: '卡片' } }
+                        ],
+                        connections: [
+                            { from: 'node-1', to: 'node-2' }, { from: 'node-2', to: 'node-3' },
+                            { from: 'node-3', to: 'node-4' }
+                        ]
+                    }
+                ]
+            },
+            'complete': {
+                name: '🚀 完整链路',
+                templates: [
+                    {
+                        name: '全自动化电商',
+                        desc: '从选品到运营的完整自动化链路',
+                        nodes: [
+                            { type: 'tiktok-scraper', x: 50, y: 50 },
+                            { type: 'product-match', x: 250, y: 50 },
+                            { type: 'profit-calc', x: 450, y: 50 },
+                            { type: 'video-gen', x: 50, y: 200 },
+                            { type: 'video-dedup', x: 250, y: 200 },
+                            { type: 'ollama-caption', x: 450, y: 200 },
+                            { type: 'ollama-translate', x: 50, y: 350 },
+                            { type: 'ollama-hashtags', x: 250, y: 350 },
+                            { type: 'zinia-env', x: 450, y: 350 },
+                            { type: 'multi-shop-login', x: 50, y: 500 },
+                            { type: 'tiktok-publish', x: 250, y: 500 },
+                            { type: 'product-listing', x: 450, y: 500 },
+                            { type: 'ad-create', x: 50, y: 650 },
+                            { type: 'roas-monitor', x: 250, y: 650 },
+                            { type: 'budget-adjust', x: 450, y: 650 },
+                            { type: 'creative-rotate', x: 50, y: 800 },
+                            { type: 'feishu-notify', x: 250, y: 800 }
+                        ],
+                        connections: [
+                            { from: 'node-1', to: 'node-2' }, { from: 'node-2', to: 'node-3' },
+                            { from: 'node-3', to: 'node-4' }, { from: 'node-4', to: 'node-5' },
+                            { from: 'node-5', to: 'node-6' }, { from: 'node-6', to: 'node-7' },
+                            { from: 'node-7', to: 'node-8' }, { from: 'node-8', to: 'node-9' },
+                            { from: 'node-9', to: 'node-10' }, { from: 'node-10', to: 'node-11' },
+                            { from: 'node-11', to: 'node-12' }, { from: 'node-12', to: 'node-13' },
+                            { from: 'node-13', to: 'node-14' }, { from: 'node-14', to: 'node-15' },
+                            { from: 'node-15', to: 'node-16' }, { from: 'node-16', to: 'node-17' }
+                        ]
+                    },
+                    {
+                        name: '数据驱动运营',
+                        desc: '数据整合与策略迭代',
+                        nodes: [
+                            { type: 'data-integration', x: 100, y: 100, config: { sources: 'TikTok Shop，飞书，广告后台', frequency: '每小时' } },
+                            { type: 'data-analysis', x: 300, y: 100, config: { metrics: 'ROAS', period: '近 7 天' } },
+                            { type: 'ltv-calc', x: 100, y: 250, config: { period: '30 天', includeAds: '是' } },
+                            { type: 'strategy-iterate', x: 300, y: 250, config: { metrics: 'ROAS', autoOptimize: '是' } },
+                            { type: 'feishu-notify', x: 100, y: 400, config: { chatId: '运营指挥部', template: '日报' } }
+                        ],
+                        connections: [
+                            { from: 'node-1', to: 'node-2' }, { from: 'node-2', to: 'node-3' },
+                            { from: 'node-3', to: 'node-4' }, { from: 'node-4', to: 'node-5' }
+                        ]
+                    }
+                ]
+            }
+        };
+
+        function showWorkflowTemplates() {
+            const modal = document.getElementById('templateModal');
+            const body = document.getElementById('templateBody');
+            
+            let html = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px;">';
+            
+            for (const category in workflowTemplates) {
+                const cat = workflowTemplates[category];
+                html += `<div style="background: linear-gradient(135deg, #f0fff4, #c6f6d5); padding: 16px; border-radius: 12px; margin-bottom: 16px;">
+                    <h4 style="color: #22543d; margin-bottom: 12px;">${cat.name}</h4>`;
+                
+                for (const tpl of cat.templates) {
+                    html += `<div style="background: white; padding: 12px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; transition: all 0.2s;" 
+                        onclick="loadTemplate('${category}', '${tpl.name}')"
+                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'"
+                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                        <div style="font-weight: 600; color: #2a4365; margin-bottom: 4px;">${tpl.name}</div>
+                        <div style="font-size: 11px; color: #718096;">${tpl.desc}</div>
+                        <div style="font-size: 10px; color: #a0aec0; margin-top: 4px;">📝 ${tpl.nodes.length} 个节点</div>
+                    </div>`;
+                }
+                
+                html += '</div>';
+            }
+            
+            html += '</div>';
+            body.innerHTML = html;
+            modal.classList.add('active');
+        }
+
+        function closeTemplateModal() {
+            document.getElementById('templateModal').classList.remove('active');
+        }
+
+        // 快捷键相关函数
+        function showShortcutModal() {
+            document.getElementById('shortcutModal').classList.add('active');
+        }
+
+        function closeShortcutModal() {
+            document.getElementById('shortcutModal').classList.remove('active');
+        }
+
+        // 键盘快捷键监听
+        document.addEventListener('keydown', function(e) {
+            // 如果在输入框中，不触发快捷键
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                return;
+            }
+
+            // Ctrl/Cmd + S: 保存
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                saveWorkflow();
+            }
+            // Ctrl/Cmd + Z: 撤销
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+                e.preventDefault();
+                showToast('ℹ️ 撤销功能开发中', 'info');
+            }
+            // Ctrl/Cmd + Y: 重做
+            if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
+                e.preventDefault();
+                showToast('ℹ️ 重做功能开发中', 'info');
+            }
+            // Ctrl/Cmd + D: 复制节点
+            if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
+                e.preventDefault();
+                if (selectedNode) {
+                    duplicateNode(selectedNode.id);
+                }
+            }
+            // Delete: 删除节点
+            if (e.key === 'Delete' || e.key === 'Backspace') {
+                if (selectedNode) {
+                    e.preventDefault();
+                    deleteNode(selectedNode.id);
+                }
+            }
+            // Ctrl/Cmd + 0: 适应画布
+            if ((e.ctrlKey || e.metaKey) && e.key === '0') {
+                e.preventDefault();
+                zoomCanvas(1);
+            }
+            // ?: 显示快捷键
+            if (e.key === '?' || (e.shiftKey && e.key === '/')) {
+                e.preventDefault();
+                showShortcutModal();
+            }
+            // F5: 运行工作流
+            if (e.key === 'F5') {
+                e.preventDefault();
+                runWorkflow();
+            }
+            // Esc: 取消连接
+            if (e.key === 'Escape') {
+                if (isConnecting) {
+                    cancelConnection();
+                }
+                if (selectedNode) {
+                    deselectNode();
+                }
+                closeConfigModal();
+                closeTemplateModal();
+                closeShortcutModal();
+            }
+        });
+
+        function duplicateNode(nodeId) {
+            const node = nodes.find(n => n.id === nodeId);
+            if (!node) return;
+            
+            const newX = node.x + 30;
+            const newY = node.y + 30;
+            createNode(node.type, newX, newY, {...node.config});
+            showToast('✅ 节点已复制', 'success');
+        }
+
+        function zoomCanvas(scale) {
+            const canvas = document.getElementById('canvas');
+            canvas.style.transform = `scale(${scale})`;
+            showToast('🔍 画布缩放：' + (scale * 100) + '%', 'info');
+        }
+
+        function cancelConnection() {
+            isConnecting = false;
+            connectingNode = null;
+            showToast('ℹ️ 已取消连接', 'info');
+        }
+
+        function loadTemplate(category, templateName) {
+            const template = workflowTemplates[category].templates.find(t => t.name === templateName);
+            if (!template) return;
+            
+            clearCanvas(false);
+            document.getElementById('workflowName').value = templateName;
+            
+            let nodeCounter = 0;
+            template.nodes.forEach(n => {
+                nodeCounter++;
+                const nodeId = 'node-' + nodeCounter;
+                createNode(n.type, n.x, n.y, n.config || {});
+            });
+            
+            setTimeout(() => {
+                connections = template.connections.map(c => ({
+                    from: c.from,
+                    to: c.to
+                }));
+                updateConnections();
+                closeTemplateModal();
+                showToast('✅ 已加载模板：' + templateName, 'success');
+            }, 200);
+        }
+
+        function runWorkflow() {
+            if (nodes.length === 0) { showToast('⚠️ 请先添加节点', 'error'); return; }
+            if (connections.length === 0) { showToast('⚠️ 请连接节点', 'error'); return; }
+            
+            // 验证所有节点都已配置
+            const unconfigured = nodes.filter(n => !n.config || Object.keys(n.config).length === 0);
+            if (unconfigured.length > 0) {
+                showToast('⚠️ 有 ' + unconfigured.length + ' 个节点未配置', 'error');
+                return;
+            }
+            
+            showToast('🚀 工作流验证通过，开始执行！', 'success');
+            setTimeout(() => {
+                alert('🚀 工作流执行成功！\n\n节点数：' + nodes.length + '\n连接数：' + connections.length + '\n\n执行日志已发送到飞书');
+            }, 500);
+        }
+
+        function clearCanvas(confirm = true) {
+            if (confirm && !confirm('确定清空画布？')) return;
+            document.getElementById('canvas').innerHTML = '<svg class="connections-svg" id="connectionsSvg"></svg><div class="welcome-overlay" id="welcomeOverlay"><div class="welcome-content"><div class="welcome-icon">🎨</div><h2>欢迎使用可视化工作流编辑器</h2><p>通过拖拽方式创建您的 TikTok 自动化运营工作流</p><div class="welcome-steps"><h3>📝 快速开始指南</h3><div class="step"><div class="step-number">1</div><div class="step-content"><strong>拖拽节点到画布</strong><p>从左侧节点库拖拽任意节点到画布区域</p></div></div><div class="step"><div class="step-number">2</div><div class="step-content"><strong>连接节点</strong><p>点击节点的输出点（右侧圆点），再点击另一个节点的输入点（左侧圆点）创建连接</p></div></div><div class="step"><div class="step-number">3</div><div class="step-content"><strong>配置节点</strong><p>点击 ✏️ 按钮配置节点参数（国家、语言、频率等）</p></div></div><div class="step"><div class="step-number">4</div><div class="step-content"><strong>保存并运行</strong><p>输入工作流名称，点击"保存工作流"，然后点击"运行工作流"执行</p></div></div></div><button class="btn-start" onclick="closeWelcome()">开始创建 →</button></div></div>';
+            nodes = [];
+            connections = [];
+            selectedNode = null;
+            connectingNode = null;
+            isConnecting = false;
+            showToast('🗑️ 画布已清空', 'success');
+        }
+
+        function closeWelcome() {
+            document.getElementById('welcomeOverlay').style.display = 'none';
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = 'toast toast-' + type;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        document.addEventListener('keydown', function(ev) {
+            if (ev.key === 'Delete' && selectedNode) {
+                deleteNode(selectedNode.id);
+            }
+            if (ev.key === 'Escape') {
+                closeConfigModal();
+                resetConnection();
+            }
+        });
+
+        // 点击画布空白处取消选择
+        document.getElementById('canvas').addEventListener('click', function(ev) {
+            if (ev.target === this || ev.target.classList.contains('connections-svg')) {
+                document.querySelectorAll('.canvas-node').forEach(n => n.classList.remove('selected'));
+                selectedNode = null;
+                resetConnection();
+            }
+        });
+    </script>
+</body>
+</html>

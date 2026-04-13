@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📈 系统监控仪表盘 - MagicPockets</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f7fafc; padding: 20px; }
+        .nav { background: white; padding: 12px 24px; border-radius: 12px; margin-bottom: 20px; display: flex; gap: 12px; flex-wrap: wrap; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .nav a { padding: 8px 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 13px; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header { background: white; padding: 24px 32px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .header h1 { color: #667eea; font-size: 24px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .card { background: white; padding: 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .card h3 { color: #667eea; margin-bottom: 16px; font-size: 18px; }
+        .metric { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #e2e8f0; }
+        .metric:last-child { border-bottom: none; }
+        .metric-label { color: #718096; }
+        .metric-value { font-weight: 600; color: #333; }
+        .status-ok { color: #48bb78; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav">
+            <a href="/">🏠 首页</a>
+            <a href="/editor.html">📊 可视化编辑器</a>
+            <a href="/dashboard.html">📈 监控仪表盘</a>
+            <a href="/status.html">📋 状态监控</a>
+            <a href="/data/reports/southeast-asia-3c-report.html">🌏 东南亚 3C 报告</a>
+            <a href="/data/reports/weekly-report.html">📝 TK 运营周报</a>
+        </div>
+        <div class="header">
+            <h1>📊 系统监控仪表盘</h1>
+            <p style="color: #718096; margin-top: 8px;">实时监控系统状态、服务健康度、工作流执行</p>
+        </div>
+        <div class="grid">
+            <div class="card">
+                <h3>🔧 服务状态</h3>
+                <div class="metric"><span class="metric-label">前端服务器</span><span class="metric-value status-ok">🟢 运行中</span></div>
+                <div class="metric"><span class="metric-label">工作流引擎</span><span class="metric-value status-ok">🟢 运行中</span></div>
+                <div class="metric"><span class="metric-label">Ollama AI</span><span class="metric-value status-ok">🟢 运行中</span></div>
+                <div class="metric"><span class="metric-label">邮件监控</span><span class="metric-value status-ok">🟢 运行中</span></div>
+                <div class="metric"><span class="metric-label">飞书集成</span><span class="metric-value status-ok">🟢 运行中</span></div>
+            </div>
+            <div class="card">
+                <h3>⚡ 工作流执行</h3>
+                <div class="metric"><span class="metric-label">已注册工作流</span><span class="metric-value">6 个</span></div>
+                <div class="metric"><span class="metric-label">今日执行</span><span class="metric-value status-ok">正常</span></div>
+                <div class="metric"><span class="metric-label">下次执行</span><span class="metric-value">明天 08:00</span></div>
+            </div>
+            <div class="card">
+                <h3>💻 系统资源</h3>
+                <div class="metric"><span class="metric-label">CPU 使用率</span><span class="metric-value">12%</span></div>
+                <div class="metric"><span class="metric-label">内存使用</span><span class="metric-value">2.4GB / 16GB</span></div>
+                <div class="metric"><span class="metric-label">磁盘使用</span><span class="metric-value">45GB / 512GB</span></div>
+                <div class="metric"><span class="metric-label">运行时间</span><span class="metric-value" id="uptime">-</span></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const start = Date.now() - 2 * 60 * 60 * 1000;
+        setInterval(() => {
+            const diff = Date.now() - start;
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            document.getElementById('uptime').textContent = `${hours}小时 ${minutes}分钟`;
+        }, 1000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📋 系统状态 - MagicPockets</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 { color: #667eea; margin-bottom: 10px; }
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .card h2 {
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .status-item:last-child { border-bottom: none; }
+        .status-label { font-weight: 500; color: #555; }
+        .status-value { display: flex; align-items: center; gap: 8px; }
+        .status-ok { color: #22c55e; font-weight: 600; }
+        .status-error { color: #ef4444; font-weight: 600; }
+        .status-warn { color: #f59e0b; font-weight: 600; }
+        .refresh-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 MagicPockets - 系统状态</h1>
+            <p class="date">最后更新：<span id="update-time"></span></p>
+            <button class="refresh-btn" onclick="location.reload()">🔄 刷新状态</button>
+        </div>
+
+        <div class="card">
+            <h2>✅ 服务状态</h2>
+            <div class="status-item">
+                <span class="status-label">OpenClaw 网关</span>
+                <span class="status-value status-ok">✅ 运行中 (端口 18789)</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">TK 可视化编辑器</span>
+                <span class="status-value status-ok">✅ 运行中 (端口 3000)</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">飞书推送</span>
+                <span class="status-value status-ok">✅ 正常 (9 Agent → 9 群)</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">妙手 ERP</span>
+                <span class="status-value status-warn">⏳ 待配置</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">紫鸟浏览器</span>
+                <span class="status-value status-warn">⏳ 待配置</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📊 今日统计</h2>
+            <div class="status-item">
+                <span class="status-label">完成任务数</span>
+                <span class="status-value status-ok">5</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Phase 1 进度</span>
+                <span class="status-value status-ok">85%</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">运行中服务</span>
+                <span class="status-value status-ok">3</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">异常告警</span>
+                <span class="status-value status-ok">0</span>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.getElementById('update-time').textContent = new Date().toLocaleString('zh-CN');
+    </script>
+</body>
+</html>

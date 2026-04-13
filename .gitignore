@@ -1,0 +1,10 @@
+# Obsidian
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/graph.json
+.daemon.log
+.sync.log
+
+# 系统文件
+.DS_Store
+*.tmp
