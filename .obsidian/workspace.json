@@ -202,6 +202,8 @@
   },
   "active": "9e5fa0e8cc49eeb4",
   "lastOpenFiles": [
+    "00-系统入口.md",
+    "03-资源/SYSTEM-ARCHITECTURE.md",
     "03-资源/代码项目/TK编辑器/weekly-report.html",
     "03-资源/代码项目/TK编辑器/video-transcriber.html",
     "03-资源/代码项目/TK编辑器/v3-workflow.html",
@@ -214,7 +216,6 @@
     "03-资源/代码项目/Bot-review",
     "03-资源/代码项目/Clawith/README.md",
     "03-资源/代码项目/Clawith/restart.sh",
-    "03-资源/代码项目/Clawith",
     "03-资源/代码项目/TK编辑器/00-索引.md",
     "03-资源/代码项目/Drama制作/Agentic-OS/00-索引.md",
     "03-资源/技术文档/OpenClaw配置/00-配置索引.md",
@@ -238,7 +239,6 @@
     "03-资源/竞品/competitors.md",
     "02-领域/headphones.md",
     "templates/test-simple.md",
-    "copilot/copilot-custom-prompts/Summarize.md",
-    "copilot/copilot-custom-prompts/Make shorter.md"
+    "copilot/copilot-custom-prompts/Summarize.md"
   ]
 }
