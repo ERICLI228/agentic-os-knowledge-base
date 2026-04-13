@@ -1,0 +1,67 @@
+# OPENCODE Controller 配置
+# 用于直接启动和操作OPENCODE
+
+api_endpoints:
+  base_url: http://localhost:5001
+  gateway_url: http://localhost:18789
+  
+  # 任务管理（已测试可用）
+  task_management:
+    list: /api/tasks
+    detail: /api/task/{task_id}
+    create: /api/tasks/create
+    milestone: /api/tasks/{task_id}/milestone/{milestone_id}
+    execute: /api/tasks/{task_id}/execute/{milestone_id}
+  
+  # TK运营（待添加路由）
+  tk_operations:
+    products: /api/tk/products
+    competitors: /api/tk/competitors
+    trending: /api/tk/trending
+    orders: /api/tk/orders
+    inventory: /api/tk/inventory
+    roas: /api/tk/roas
+  
+  # Drama制作（待添加路由）
+  drama_production:
+    scripts: /api/drama/scripts
+    script_detail: /api/drama/script/{script_id}
+    characters: /api/drama/characters
+    generate: /api/drama/generate
+    voice: /api/drama/voice
+    video: /api/drama/video
+  
+  # 文件操作（已测试可用）
+  file_operations:
+    download: /api/download
+    templates: /api/templates
+
+# Skills映射
+skills_mapping:
+  tk_operator: ~/.agents/skills/proactive-operator/
+  drama_producer: ~/.openclaw/skills/water-margin-drama/
+  seedance_video: ~/.openclaw/skills/seedance2/
+  macos_voice: /usr/bin/say
+  hermes_memory: ~/.hermes/memory/
+  
+# 六大能力集成
+six_capabilities:
+  superpowers: ~/.agents/skills/superpowers-validator/
+  frontend: ~/.agents/skills/frontend-design-3-0.1.0/
+  code_review: ~/.agents/skills/code-1.0.4/
+  security: ~/.agents/skills/security-auditor-1.0.0/
+  memory: ~/.agents/skills/memory-1.0.2/
+  gstack: ~/.agents/skills/gstack-roles/
+
+# 自动启动配置
+auto_start:
+  enabled: true
+  gateway_check: http://localhost:18789/health
+  dashboard_check: http://localhost:5001/api/health
+  timeout: 10s
+  
+# 操作模式
+operation_mode:
+  default: interactive  # 用户可看到操作过程
+  log_output: true
+  show_commands: true
