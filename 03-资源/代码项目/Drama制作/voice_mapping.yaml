@@ -1,0 +1,58 @@
+# 水浒传角色声音映射配置
+# 参照1998版水浒传电视剧角色声音特点
+
+roles:
+  武松:
+    voice_id: "zhitian_emo"
+    description: "英勇刚毅，雄浑有力"
+    speech_rate: -0.2  # 语速减慢20%
+    pitch_rate: 0.15   # 音调提高15%
+    emotion: heroic    # 英勇情感
+    reference: "丁海峰（98版武松）"
+    
+  老虎:
+    voice_id: "roar_effect"
+    description: "凶猛威严，咆哮震撼"
+    speech_rate: -0.5  # 语速极慢
+    pitch_rate: -0.3   # 音调极低
+    effect: tiger_roar # 老虎咆哮音效
+    
+  店小二:
+    voice_id: "xiaoyu_emo"
+    description: "谦卑阿谀，尖细谄媚"
+    speech_rate: 0.3   # 语速加快30%
+    pitch_rate: -0.1   # 音调降低10%
+    emotion: servile   # 谦卑情感
+    
+  旁白:
+    voice_id: "zhichu_emo"
+    description: "沉稳叙事，中性权威"
+    speech_rate: -0.1  # 语速减慢10%
+    pitch_rate: 0      # 音调中性
+    emotion: calm      # 平稳情感
+    
+  潘金莲:
+    voice_id: "aicheng_emo"
+    description: "妩媚风情，柔媚诱惑"
+    speech_rate: 0.1   # 语速稍快
+    pitch_rate: 0.2    # 音调提高20%
+    emotion: seductive # 妩媚情感
+    
+  西门庆:
+    voice_id: "zhiyan_emo"
+    description: "阴险权谋，虚情假意"
+    speech_rate: -0.15 # 语速减慢15%
+    pitch_rate: -0.05  # 音调稍低
+    emotion: scheming  # 算计情感
+
+# 批量生成配置
+batch_config:
+  output_format: "mp3"
+  quality: "high"
+  sample_rate: 16000
+  
+# 成本估算
+cost_estimate:
+  per_1000_chars: 0.008  # ¥0.008/千字
+  per_episode: 3-5       # ¥3-5/集
+  full_series: 50-100    # ¥50-100（全系列）
