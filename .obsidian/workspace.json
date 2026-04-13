@@ -1,0 +1,243 @@
+{
+  "main": {
+    "id": "43e21a0819b55105",
+    "type": "split",
+    "children": [
+      {
+        "id": "5d803df10dffa0af",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "656a57361e84866a",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "03-资源/代码项目/Drama制作/Agentic-OS/README.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "README"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "216c25ef6f112a64",
+    "type": "split",
+    "children": [
+      {
+        "id": "8ddc7855917f8d5c",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "9e5fa0e8cc49eeb4",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "文件列表"
+            }
+          },
+          {
+            "id": "5ca8e5401375d1bf",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "搜索"
+            }
+          },
+          {
+            "id": "99e030efaf88e3fa",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "书签"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "cdc6e966a2fb7476",
+    "type": "split",
+    "children": [
+      {
+        "id": "3548a1fb9efe6558",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "f10ac2b06695f5af",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "反向链接"
+            }
+          },
+          {
+            "id": "cc7406636825d8e4",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "出链"
+            }
+          },
+          {
+            "id": "14430f5028ff7a6c",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "标签"
+            }
+          },
+          {
+            "id": "4bfea0fd5e0f1aba",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "添加笔记属性"
+            }
+          },
+          {
+            "id": "245ab4590cdbf025",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "大纲"
+            }
+          },
+          {
+            "id": "f74312479f4cd03d",
+            "type": "leaf",
+            "state": {
+              "type": "calendar",
+              "state": {},
+              "icon": "calendar-with-checkmark",
+              "title": "Calendar"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:打开快速切换": false,
+      "graph:查看关系图谱": false,
+      "canvas:新建白板": false,
+      "daily-notes:打开/创建今天的日记": false,
+      "templates:插入模板": false,
+      "command-palette:打开命令面板": false,
+      "markdown-importer:打开 Markdown 格式转换器": false,
+      "random-note:开始漫游笔记": false,
+      "audio-recorder:开始/结束录音": false,
+      "workspaces:管理工作区布局": false,
+      "publish:发布更改": false,
+      "bases:新建数据库": false,
+      "obsidian-excalidraw-plugin:New drawing": false,
+      "table-editor-obsidian:Advanced Tables Toolbar": false,
+      "obsidian-kanban:Create new board": false,
+      "omnisearch:Omnisearch": false,
+      "obsidian-importer:Open Importer": false
+    }
+  },
+  "active": "656a57361e84866a",
+  "lastOpenFiles": [
+    "03-资源/代码项目/Drama制作/Agentic-OS/00-索引.md",
+    "03-资源/技术文档/OpenClaw配置/00-配置索引.md",
+    "03-资源/代码项目/Drama制作/Agentic-OS/index-v3.1.html",
+    "03-资源/代码项目/Drama制作/Agentic-OS/dashboard_api_v2.py",
+    "03-资源/代码项目/Drama制作/Agentic-OS/README.md",
+    "03-资源/代码项目/Drama制作/Agentic-OS",
+    "03-资源/技术文档/自动化脚本/00-自动化索引.md",
+    "03-资源/代码项目/00-索引.md",
+    "03-资源/代码项目/TK运营/00-索引.md",
+    "03-资源/代码项目/OpenClaw核心/00-索引.md",
+    "03-资源/代码项目/工具脚本/00-索引.md",
+    "02-领域/Drama制作/00-索引.md",
+    "03-资源/代码项目/Drama制作/00-索引.md",
+    "03-资源/代码项目/工具脚本",
+    "03-资源/代码项目/TK运营",
+    "03-资源/代码项目/OpenClaw核心",
+    "03-资源/代码项目/Drama制作",
+    "03-资源/代码项目",
+    "03-资源/技术文档/技能库/00-技能索引.md",
+    "03-资源/技术文档/自动化脚本",
+    "03-资源/技术文档/技能库",
+    "03-资源/技术文档/00-索引.md",
+    "01-项目/任务列表.md",
+    "02-领域/TK运营/headphones.md",
+    "02-领域/TK运营/00-索引.md",
+    "01-项目/Dashboard.md",
+    "wiki/模版/00-索引.md",
+    "04-归档/未命名.canvas",
+    "04-归档/未命名 1.canvas",
+    "03-资源/竞品/competitors.md",
+    "02-领域/headphones.md",
+    "templates/test-simple.md",
+    "copilot/copilot-custom-prompts/Summarize.md",
+    "copilot/copilot-custom-prompts/Make shorter.md",
+    "copilot/copilot-custom-prompts/Remove URLs.md",
+    "copilot/copilot-custom-prompts/Make longer.md",
+    "copilot/copilot-custom-prompts/Clip Web Page.md"
+  ]
+}

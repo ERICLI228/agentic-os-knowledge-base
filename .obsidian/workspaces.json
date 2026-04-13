@@ -1,0 +1,206 @@
+{
+  "workspaces": {
+    "~/.openclaw/workspace/knowledge-base/": {
+      "main": {
+        "id": "aaa1a793e17b2180",
+        "type": "split",
+        "children": [
+          {
+            "id": "c2ffe577f09cce37",
+            "type": "tabs",
+            "children": [
+              {
+                "id": "d2c86ec998b4ff1c",
+                "type": "leaf",
+                "state": {
+                  "type": "empty",
+                  "state": {},
+                  "icon": "lucide-file",
+                  "title": "新标签页"
+                }
+              }
+            ]
+          }
+        ],
+        "direction": "vertical"
+      },
+      "left": {
+        "id": "9b10e515c51f1c8e",
+        "type": "split",
+        "children": [
+          {
+            "id": "2ac36748b3b73659",
+            "type": "tabs",
+            "children": [
+              {
+                "id": "08cb5e29110e7727",
+                "type": "leaf",
+                "state": {
+                  "type": "file-explorer",
+                  "state": {
+                    "sortOrder": "alphabetical",
+                    "autoReveal": true
+                  },
+                  "icon": "lucide-folder-closed",
+                  "title": "文件列表"
+                }
+              },
+              {
+                "id": "bb4a138348b3b103",
+                "type": "leaf",
+                "state": {
+                  "type": "search",
+                  "state": {
+                    "query": "",
+                    "matchingCase": false,
+                    "explainSearch": false,
+                    "collapseAll": false,
+                    "extraContext": false,
+                    "sortOrder": "alphabetical"
+                  },
+                  "icon": "lucide-search",
+                  "title": "搜索"
+                }
+              },
+              {
+                "id": "6d5f1dc536799262",
+                "type": "leaf",
+                "state": {
+                  "type": "bookmarks",
+                  "state": {},
+                  "icon": "lucide-bookmark",
+                  "title": "书签"
+                }
+              }
+            ]
+          }
+        ],
+        "direction": "horizontal",
+        "width": 300
+      },
+      "right": {
+        "id": "41bd202f2af22716",
+        "type": "split",
+        "children": [
+          {
+            "id": "9aaab6b89ba01787",
+            "type": "tabs",
+            "children": [
+              {
+                "id": "32930b9556e52a0e",
+                "type": "leaf",
+                "state": {
+                  "type": "backlink",
+                  "state": {
+                    "file": "wiki/index.md",
+                    "collapseAll": false,
+                    "extraContext": false,
+                    "sortOrder": "alphabetical",
+                    "showSearch": false,
+                    "searchQuery": "",
+                    "backlinkCollapsed": false,
+                    "unlinkedCollapsed": true
+                  },
+                  "icon": "links-coming-in",
+                  "title": "index 的反向链接列表"
+                }
+              },
+              {
+                "id": "e44c7ac69659c59a",
+                "type": "leaf",
+                "state": {
+                  "type": "outgoing-link",
+                  "state": {
+                    "file": "wiki/index.md",
+                    "linksCollapsed": false,
+                    "unlinkedCollapsed": true
+                  },
+                  "icon": "links-going-out",
+                  "title": "index 的出链列表"
+                }
+              },
+              {
+                "id": "ccab09414d227acb",
+                "type": "leaf",
+                "state": {
+                  "type": "tag",
+                  "state": {
+                    "sortOrder": "frequency",
+                    "useHierarchy": true,
+                    "showSearch": false,
+                    "searchQuery": ""
+                  },
+                  "icon": "lucide-tags",
+                  "title": "标签"
+                }
+              },
+              {
+                "id": "89e38efa7f3d1ba5",
+                "type": "leaf",
+                "state": {
+                  "type": "all-properties",
+                  "state": {
+                    "sortOrder": "frequency",
+                    "showSearch": false,
+                    "searchQuery": ""
+                  },
+                  "icon": "lucide-archive",
+                  "title": "添加笔记属性"
+                }
+              },
+              {
+                "id": "3c361f927a44287e",
+                "type": "leaf",
+                "state": {
+                  "type": "outline",
+                  "state": {
+                    "file": "wiki/index.md",
+                    "followCursor": false,
+                    "showSearch": false,
+                    "searchQuery": ""
+                  },
+                  "icon": "lucide-list",
+                  "title": "index 的大纲"
+                }
+              },
+              {
+                "id": "27aa558428decd14",
+                "type": "leaf",
+                "state": {
+                  "type": "footnotes",
+                  "state": {
+                    "file": "未命名.base"
+                  },
+                  "icon": "lucide-file-signature",
+                  "title": "脚注"
+                }
+              }
+            ]
+          }
+        ],
+        "direction": "horizontal",
+        "width": 300,
+        "collapsed": true
+      },
+      "left-ribbon": {
+        "hiddenItems": {
+          "markdown-importer:打开 Markdown 格式转换器": false,
+          "workspaces:管理工作区布局": false,
+          "publish:发布更改": false,
+          "switcher:打开快速切换": false,
+          "graph:查看关系图谱": false,
+          "canvas:新建白板": false,
+          "daily-notes:打开/创建今天的日记": false,
+          "templates:插入模板": false,
+          "command-palette:打开命令面板": false,
+          "bases:新建数据库": false,
+          "random-note:开始漫游笔记": false,
+          "audio-recorder:开始/结束录音": false
+        }
+      },
+      "active": "d2c86ec998b4ff1c",
+      "mtime": "2026-04-12T09:51:59-07:00"
+    }
+  },
+  "active": "~/.openclaw/workspace/knowledge-base/"
+}
