@@ -1,0 +1,35 @@
+# Git Commit Hash - 回滚节点记录
+# 创建时间: 2026-04-13 03:05 PDT
+
+## agentic-os-collective
+主仓库: https://github.com/ERICLI228/agentic-os-collective
+本次会话Commits:
+- f2e9d02: daily backup 2026-04-13
+- 7229e63: feat: 里程碑伸缩抽屉
+- 98ca724: feat: 数据面板时间线视图
+- 0fe6736: fix: TK返回按钮样式
+- 5cde6571938a1fb6fb4137cd3faa6da6eada6380: 全量备份提交
+
+回滚命令:
+cd ~/agentic-os-collective
+git checkout 5cde6571938a1fb6fb4137cd3faa6da6eada6380
+
+## agentic-os-knowledge-base
+知识库: https://github.com/ERICLI228/agentic-os-knowledge-base
+本次会话Commits:
+- b1f19c0: fix: 移除首页按钮
+- 0fe6736: fix: TK返回按钮样式
+- 415351b: fix: 返回TK运营中心
+- 766e32bd1d8f6a119d0777822af76344696a8252: 全量备份说明
+
+回滚命令:
+cd ~/knowledge-base
+git checkout 766e32bd1d8f6a119d0777822af76344696a8252
+
+## 本地备份
+位置: ~/Backups/Full-Backup-20260413-Session/
+文件: 120+
+
+恢复示例:
+cp ~/Backups/Full-Backup-20260413-Session/openclaw-core/*.py ~/.openclaw/core/
+cp ~/Backups/Full-Backup-20260413-Session/vue-components/*.vue ~/agentic-os-collective/web/src/components/

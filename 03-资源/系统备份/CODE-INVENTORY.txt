@@ -1,0 +1,153 @@
+# 关键代码文件清单 - 2026-04-13
+
+## 🎯 本次会话核心修改文件
+
+### 1. 指挥中心里程碑伸缩抽屉
+文件: ~/.openclaw/dashboard/index.html
+行数: 250+
+关键函数:
+- toggleMilestoneDetail(el) - 点击展开里程碑详情
+- renderMilestoneContent(oc) - 根据output_content.type渲染
+
+修改时间: 02:50 PDT
+功能: 点击里程碑节点 → 展开详情抽屉
+
+### 2. Vue数据面板看板点击+时间线
+文件: ~/agentic-os-collective/web/src/components/TaskList.vue
+行数: 800+
+关键代码:
+- 第378行: kanban-card @click="openTaskDrawer(task)"
+- 第51-72行: timelineFilter computed (项目/状态/任务过滤)
+- 第454-490行: 时间线视图模板
+
+修改时间: 01:49 PDT
+功能: 看板卡片点击+时间线新增过滤下拉框
+
+### 3. TK运营中心重设计
+文件: ~/.openclaw/dashboard/tk-center.html
+行数: 150+
+风格: Inter字体 + 紫色渐变 (#667eea → #764ba2)
+
+修改时间: 01:14 PDT
+功能: 科技清新风格 + 分类卡片
+
+### 4. 里程碑数据注入
+文件: ~/.openclaw/scripts/fix_milestones.py
+行数: 300+
+关键函数:
+- create_drama_test_data() - 创建完整测试数据
+- update_task(task_id, milestones_data) - 更新任务JSON
+
+注入内容:
+- MS-1: 3个候选剧本 + 选择结果
+- MS-2: 争议点列表 + 解决方案
+- MS-3: 角色卡片(武松/老虎/店小二)
+- MS-4: 完整剧本(2500字)
+- MS-5: 审核意见
+- MS-6: 视频信息(5分钟/1080p)
+- MS-7: 配音映射
+
+修改时间: 02:33 PDT
+
+### 5. 下载功能修复
+文件: ~/.openclaw/core/dashboard_api_v2.py
+行数: 500+
+修改: 第506行添加搜索目录 ~/drama/scripts, ~/drama/characters
+
+测试文件:
+- ~/drama/output/wusong_ep01.mp4 (5KB)
+- ~/drama/scripts/wusong_ep01.txt (2KB)
+- ~/drama/characters/wusong.png (2KB)
+
+修改时间: 02:54 PDT
+
+### 6. TK子页面返回按钮
+文件: ~/tk-workflow-editor/public/*.html (11个文件)
+统一样式: 紫色渐变返回按钮
+目标: http://localhost:5002/tk-center.html
+
+修改时间: 01:55 PDT
+
+---
+
+## 📁 API关键端点代码
+
+### /api/tasks/<id>/milestone/<mid>
+位置: ~/.openclaw/core/dashboard_api_v2.py
+行数: 200-250
+返回: milestone详情 + execution_details
+
+### /api/download
+位置: ~/.openclaw/core/dashboard_api_v2.py
+行数: 492-540
+功能: 文件下载 (搜索多目录)
+
+### /api/dashboard
+位置: ~/.openclaw/core/dashboard_api_v2.py
+行数: 140-180
+返回: 全部任务 + KPI + 待决策
+
+---
+
+## 🔧 启动脚本
+
+### 服务启动
+文件: ~/.openclaw/scripts/LAUNCH-SERVICES.sh
+内容:
+- 指挥中心 (5002)
+- Dashboard API (5001)
+- TK编辑器 (3000)
+- Vue前端 (5173)
+
+### API重启
+文件: ~/.openclaw/scripts/restart-dashboard-api.sh
+功能: 杀死旧进程 + 启动新API
+
+---
+
+## 📊 数据结构
+
+### 任务JSON结构
+位置: ~/.openclaw/workspace/tasks/active/*.json
+关键字段:
+- execution_details.output_content.type
+- execution_details.output_content.data
+- execution_details.artifacts
+- execution_details.decision_history
+
+### 里程碑类型映射
+| type | 显示内容 |
+|------|----------|
+| script_selection | 剧本候选列表 |
+| controversy_resolution | 争议分析+改写 |
+| character_design | 角色卡片 |
+| full_script | 完整剧本 |
+| review_result | 审核意见 |
+| video | 视频信息 |
+| audio | 配音映射 |
+
+---
+
+## 🔄 回滚指南
+
+### 回滚单个文件
+```bash
+# 从备份恢复
+cp ~/Backups/Full-Backup-20260413-Session/dashboard-pages/index.html ~/.openclaw/dashboard/
+```
+
+### 回滚整个仓库
+```bash
+cd ~/agentic-os-collective
+git checkout 5cde657
+```
+
+### 查看历史版本
+```bash
+git log --oneline --all -20
+git show <commit>:path/to/file  # 查看特定文件历史版本
+```
+
+---
+
+*清单创建时间: 2026-04-13 03:06 PDT*
