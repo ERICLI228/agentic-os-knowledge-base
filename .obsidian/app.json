@@ -1,3 +1,11 @@
 {
-  "promptDelete": false
+  "promptDelete": false,
+  "newFileLocation": "folder",
+  "newFileFolderPath": "daily",
+  "attachmentFolderPath": "assets",
+  "alwaysUpdateLinks": true,
+  "spellcheck": true,
+  "showUnsupportedFiles": true,
+  "strictLineBreaks": false,
+  "trashOption": "system"
 }

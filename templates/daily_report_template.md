@@ -1,3 +1,10 @@
+---
+title: "daily_report_template"
+created: 2026-04-12
+updated: 2026-04-12
+tags: [日志, 模板]
+status: draft
+---
 # {{date}} 日报
 
 ## TK 运营

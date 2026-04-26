@@ -1,3 +1,10 @@
+---
+title: "test-simple"
+created: 2026-04-12
+updated: 2026-04-12
+tags: [模板]
+status: draft
+---
 # 测试模板
 
 日期: <% tp.date.now() %>
