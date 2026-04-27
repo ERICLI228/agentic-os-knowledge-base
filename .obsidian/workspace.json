@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "ac0772f15a899c12",
+        "id": "caeea09f02fbc262",
         "type": "tabs",
         "children": [
           {
-            "id": "7db1e3e9a6e1407f",
+            "id": "b31e99703171ee6d",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "projects/TK-东南亚3C/运营看板.md",
+                "file": "projects/水浒传短剧/01-Dify-ComfyUI-Best-Practices.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "运营看板"
+              "title": "01-Dify-ComfyUI-Best-Practices"
             }
           }
         ]
@@ -211,37 +211,37 @@
       "obsidian-importer:Open Importer": false
     }
   },
-  "active": "9e5fa0e8cc49eeb4",
+  "active": "b31e99703171ee6d",
   "lastOpenFiles": [
+    "00-入口/智能看板.md",
+    "wiki/Drama制作/MOC.md",
+    "00-入口/制作流水线.excalidraw.md",
+    "00-入口/知识体系思维导图.md",
+    "00-入口/系统入口.md",
+    "raw/articles/llm-wiki-karpathy-methodology.md",
+    "projects/水浒传短剧/Wan2.1-Workflow-Config.md",
+    "projects/水浒传短剧/TK短剧审查索引.md",
+    "projects/水浒传短剧/README.md",
+    "projects/水浒传短剧/API Keys.md",
+    "projects/水浒传短剧/扩展任务自动推进计划.md",
+    "projects/水浒传短剧/01-Dify-ComfyUI-Best-Practices.md",
+    "projects/其他/Dashboard.md",
+    "projects/其他/任务列表.md",
+    "archive/README.md",
+    "archive/reports/测试结果速览-20260413.md",
+    "archive/reports/API-ROUTE-PLAN.md",
+    "templates/📊-日报模板-daily-full.md",
+    "wiki/index.md",
+    "projects/TK-东南亚3C/运营看板.md",
     "05-每日日志/2026-04/2026-04-25.md",
     "05-每日日志/2026-04",
     "05-每日日志",
-    "00-入口/智能看板.md",
     "wiki/业务架构/v3改造记录/PRD-v3.3-诚实修订版.md",
-    "00-入口/制作流水线.excalidraw.md",
-    "00-入口/系统入口.md",
-    "00-入口/知识体系思维导图.md",
     "projects/水浒传短剧/流水线状态.md",
-    "wiki/Drama制作/MOC.md",
     "wiki/技术文档/MOC.md",
     "03-资源/代码项目/Agentic-OS/v3.3/六轮改造总报告.md",
     "archive/reports/OPENCODE-DEMO.md",
-    "archive/reports/HIGH-EFFICIENCY-USAGE-GUIDE.md",
-    "archive/reports/API-VIDEO-AUDIO-AVAILABILITY.md",
-    "archive/reports/API-ROUTE-PLAN.md",
-    "archive/reports/测试结果速览-20260413.md",
-    "archive/reports/六大能力强制执行确认-20260413.md",
-    "archive/reports/COMPREHENSIVE-SUMMARY-REPORT-20260413.md",
-    "templates/meeting-v2.md",
-    "templates/drama-episode-v2.md",
-    "templates/project-v2.md",
-    "templates/daily-full-v2.md",
     "scripts/detect-orphans.sh",
-    "wiki/TK运营/MOC.md",
-    "wiki/标签体系.md",
-    "projects/水浒传短剧/制作看板.md",
-    "projects/TK-东南亚3C/运营看板.md",
-    "wiki/Drama制作/video-script-template.md",
     "wiki/TK运营/选品",
     "wiki/业务架构/v3改造记录",
     "wiki/业务架构/工作日志",
